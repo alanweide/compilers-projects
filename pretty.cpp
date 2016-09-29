@@ -18,7 +18,7 @@ string printType(SgType* type) {
     case V_SgTypeDouble:
       return "double";
     default:
-      return "[UNHANDLED] " + type->unparseToString();
+      return "[UNHANDLED printType] " + type->unparseToString();
   }
 }
 
@@ -87,7 +87,7 @@ string printOperatorForBinaryOp(SgBinaryOp* op) {
     case V_SgSubtractOp:
       return " - ";
     default:
-      return " [UNHANDLED] ";
+      return " [UNHANDLED printOperatorForBinaryOp] ";
   }
 }
 
@@ -110,7 +110,7 @@ string printValueExp(SgValueExp* exp) {
       return v_exp->get_valueString();
     }
     default:
-      return "[UNHANDLED] " + exp->unparseToString();
+      return "[UNHANDLED printValueExp] " + exp->unparseToString();
   }
 }
 
@@ -127,7 +127,7 @@ void examineBasicBlock(SgBasicBlock* block) {
         break;
       }
       default:
-        cout << "[UNHANDLED] " << stmt->unparseToString() << endl;
+        cout << "[UNHANDLED examineBasicBlock] " << stmt->unparseToString() << endl;
     }
   }
   cout << "}" << endl;
@@ -161,7 +161,7 @@ void examineScopeStatement(SgScopeStatement* scope, string name) {
       examineBasicBlock(block);
     }
     default:
-      cout << "[UNHANDLED] " << scope->unparseToString();
+      cout << "[UNHANDLED examineScopeStatement] " << scope->unparseToString();
   }
 }
 
@@ -194,7 +194,7 @@ void examineExpression(SgExpression* expr) {
       cout << printValueExp(val_exp);
     }
     default:
-      cout << "[UNHANDLED] " << expr->unparseToString();
+      cout << "[UNHANDLED examineExpression] " << expr->unparseToString();
   }
 }
 
@@ -203,7 +203,7 @@ void examineFunctionDeclaration(SgFunctionDeclaration* decl) {
   SgFunctionDefinition* def = decl->get_definition();
   if (def) {
     SgFunctionDeclaration* f_decl = def->get_declaration();
-    cout << printType(f_decl->get_orig_return_type()) << " " << f_decl->get_name().getString() << "()";
+    cout << printType(f_decl->get_orig_return_type()) << " " << f_decl->get_name().getString() << "()" << endl;
 
     // TODO: parameter list
 
