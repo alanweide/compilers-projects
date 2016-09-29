@@ -101,20 +101,20 @@ string printOperatorForBinaryOp(SgBinaryOp* op) {
 
 string printValueExp(SgValueExp* exp) {
   switch(exp->variantT()) {
-    case V_SgIntValExp: {
-      SgIntValExp* v_exp = isSgIntValExp(exp);
+    case V_SgInt: {
+      SgIntVal* v_exp = isSgIntValExp(exp);
       return v_exp->get_valueString();
     }
-    case V_SgLongValExp: {
+    case V_SgLongVal: {
       SgLongIntValExp* v_exp = isSgLongIntValExp(exp);
       return v_exp->get_valueString() + "L";
     }
-    case V_SgFloatValExp: {
-      SgFloatValExp* v_exp = isSgFloatValExp(exp);
+    case V_SgFloatVal: {
+      SgFloatVal* v_exp = isSgFloatValExp(exp);
       return v_exp->get_valueString() + "F";
     }
-    case V_SgDoubleValExp: {
-      SgDoubleValExp* v_exp = isSgDoubleValExp(exp);
+    case V_SgDoubleVal: {
+      SgDoubleVal* v_exp = isSgDoubleValExp(exp);
       return v_exp->get_valueString();
     }
     default:
@@ -184,7 +184,7 @@ void examineExpression(SgExpression* expr) {
     }
     case V_SgValueExp: {
       SgValueExp* val_exp = isSgValueExp(expr);
-      cout << printValueExp(expr);
+      cout << printValueExp(val_exp);
     }
     default:
       cout << "[UNHANDLED] " << expr->unparseToString();
