@@ -1,7 +1,10 @@
 #include <rose.h>
 using namespace std;
 
-void examineBasicBlock(SgBasicBlock* block);
+void examineScopeStatement(SgScopeStatement* scope, string name);
+void examineVariableDeclaration(SgVariableDeclaration* decl);
+void examineFunctionDeclaration(SgFunctionDeclaration* decl);
+void examineExpression(SgExpression* expr);
 
 string printType(SgType* type) {
   switch(type->variantT()) {
@@ -18,7 +21,111 @@ string printType(SgType* type) {
   }
 }
 
+string printCompoundAssignOperator(SgBinaryOp* op) {
+  switch(op->variantT()) {
+    case V_SgAndAssignOp:
+      return " &= ";
+    case V_SgDivAssignOp:
+      return " /= ";
+    case V_SgIntegerDivideAssignOp:
+      return " /[Integer Division]= ";
+    case V_SgIorAssignOp:
+      return " |= ";
+    case V_SgLshiftAssignOp:
+      return " <<= ";
+    case V_SgMinusAssignOp:
+      return " -= ";
+    case V_SgModAssignOp:
+      return " %= ";
+    case V_SgMultAssignOp:
+      return " *= ";
+    case V_SgPlusAssignOp:
+      return " += ";
+    case V_SgRshiftAssignOp:
+      return " >>= ";
+    case V_SgXorAssignOp:
+      return " ^= ";
+    default:
+      return " [UNHANDLED] ";
+  }
+}
+
+string printOperatorForBinaryOp(SgBinaryOp* op) {
+  switch(op->variantT()) {
+    case V_SgAddOp:
+      return " + ";
+    case V_SgAndOp:
+      return " && ";
+    case V_SgAssignOp:
+      return " = ";
+    case V_SgBitAndOp:
+      return " & ";
+    case V_SgBitOrOp:
+      return " | ";
+    case V_SgBitXorOp:
+      return " ^ ";
+    case V_SgCompoundAssignOp:
+      return printCompoundAssignOperator(op);
+    case V_SgDivideOp:
+      return " / ";
+    case V_SgEqualityOp:
+      return " == ";
+    case V_SgGreaterOrEqualOp:
+      return " >= ";
+    case V_SgGreaterThanOp:
+      return " > ";
+    case V_SgIntegerDivideOp:
+      return " /[IntegerDivide] ";
+    case V_SgLessOrEqualOp:
+      return " < ";
+    case V_SgLessThanOp:
+      return " <= ";
+    case V_LshiftOp:
+      return " << ";
+    case SgModOp:
+      return " % ";
+    case SgMultiplyOp:
+      return " * ";
+    case SgNotEqualOp:
+      return " != ";
+    case V_SgOrOp:
+      return " || ";
+    case V_SgRshiftOp:
+      return " >> ";
+    case V_SgSubtractOp:
+      return " - ";
+    default:
+      return " [UNHANDLED] ";
+  }
+}
+
+string printValueExp(SgValueExp* exp) {
+  switch(exp->variantT()) {
+    case V_SgIntValExp: {
+      SgIntValExp* v_exp = isSgIntValExp(exp);
+      return v_exp->get_valueString();
+    }
+    case V_SgLongValExp: {
+      SgLongIntValExp* v_exp = isSgLongIntValExp(exp);
+      return v_exp->get_valueString() + "L";
+    }
+    case V_SgFloatValExp: {
+      SgFloatValExp* v_exp = isSgFloatValExp(exp);
+      return v_exp->get_valueString() + "F";
+    }
+    case V_SgDoubleValExp: {
+      SgDoubleValExp* v_exp = isSgDoubleValExp(exp);
+      return v_exp->get_valueString();
+    }
+    default:
+      return "[UNHANDLED] " + exp->unparseToString();
+  }
+}
+
 void examineScopeStatement(SgScopeStatement* scope, string name) {
+
+  // Debug info
+
   SgSymbolTable* symbol_table = scope->get_symbol_table();
   set<SgNode*> symbol_nodes = symbol_table->get_symbols();
   set<SgNode*>::const_iterator symbol_iter;
@@ -32,8 +139,25 @@ void examineScopeStatement(SgScopeStatement* scope, string name) {
       num_vars++;
     }
   }
-  cout << "[Scope " << name << "] Num symbols: " << symbol_nodes.size() << endl;      
-  cout << "[Scope " << name << "] Num variable symbols: " << num_vars << endl;      
+  cout << "[Scope " << name << "] Num symbols: " << symbol_nodes.size() << endl;
+  cout << "[Scope " << name << "] Num variable symbols: " << num_vars << endl;
+
+  // Pretty print
+
+  SgStatementPtrList& stmt_list = block->get_statements();
+  SgStatementPtrList::const_iterator iter;
+  for (iter=stmt_list.begin(); iter != stmt_list.end(); iter++) {
+    SgStatement* stmt = *iter;
+    switch(stmt->variantT()) {
+      case V_SgVariableDeclaration: {
+        SgVariableDeclaration* d_stmt = isSgVariableDeclaration(stmt);
+        examineVariableDeclaration(d_stmt);
+        break;
+      }
+      default:
+        cout << "[UNHANDLED] " << stmt->unparseToString() << endl;
+    }
+  }
 }
 
 void examineVariableDeclaration(SgVariableDeclaration* decl) {
@@ -45,10 +169,25 @@ void examineVariableDeclaration(SgVariableDeclaration* decl) {
     cout << printType(symbol->get_type()) << " " << symbol->get_name().getString();
     SgInitializer* init_expr = name->get_initializer();
     if (init_expr) {
-      cout << " = " << init_expr->unparseToString();
-      // examineInitializer(init_expr);
+      cout << " = ";
+      examineExpression(init_expr);
     }
     cout << ";" << endl;
+  }
+}
+
+void examineExpression(SgExpression* expr) {
+  switch(expr->variantT()) {
+    case V_SgBinaryOp: {
+      SgBinaryOp* bi_expr = isSgBinaryOp(expr);
+      cout << examineExpression(bi_expr->get_lhs_operand()) << printOperatorForBinaryOp(bi_expr) << examineExpression(bi_expr->get_rhs_operand());
+    }
+    case V_SgValueExp: {
+      SgValueExp* val_exp = isSgValueExp(expr);
+      cout << printValueExp(expr);
+    }
+    default:
+      cout << "[UNHANDLED] " << expr->unparseToString();
   }
 }
 
@@ -67,27 +206,9 @@ void examineFunctionDeclaration(SgFunctionDeclaration* decl) {
     // cout << "[Func] - " << stmt_list.size() << " statements" << endl;
     // An SgBasicBlock is a subclass of SgScopeStatement; process the symbol table for this scope
     examineScopeStatement(body,symbol->get_name().getString());
-    examineBasicBlock(body);
     cout << "}" << endl;
   } else if (symbol) {
     cout << ";" << endl;
-  }
-}
-
-void examineBasicBlock(SgBasicBlock* block) {
-  SgStatementPtrList& stmt_list = block->get_statements();
-  SgStatementPtrList::const_iterator iter;
-  for (iter=stmt_list.begin(); iter != stmt_list.end(); iter++) {
-    SgStatement* stmt = *iter;
-    switch(stmt->variantT()) {
-      case V_SgVariableDeclaration: {
-        SgVariableDeclaration* d_stmt = isSgVariableDeclaration(stmt);
-        examineVariableDeclaration(d_stmt);
-        break;
-      }
-      default:
-        cout << "[UNHANDLED] " << stmt->unparseToString() << endl;
-    }
   }
 }
 
