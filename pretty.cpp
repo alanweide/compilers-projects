@@ -6,6 +6,7 @@ void examineVariableDeclaration(SgVariableDeclaration* decl);
 void examineFunctionDeclaration(SgFunctionDeclaration* decl);
 void examineBasicBlock(SgBasicBlock* block);
 void examineExpression(SgExpression* expr);
+void examineBinaryOp(SgBinaryOp* expr);
 
 string printType(SgType* type) {
   switch(type->variantT()) {
@@ -91,27 +92,10 @@ string printOperatorForBinaryOp(SgBinaryOp* op) {
   }
 }
 
-string printValueExp(SgValueExp* exp) {
-  switch(exp->variantT()) {
-    case V_SgIntVal: {
-      SgIntVal* v_exp = isSgIntVal(exp);
-      return v_exp->get_valueString();
-    }
-    case V_SgLongIntVal: {
-      SgLongIntVal* v_exp = isSgLongIntVal(exp);
-      return v_exp->get_valueString() + "L";
-    }
-    case V_SgFloatVal: {
-      SgFloatVal* v_exp = isSgFloatVal(exp);
-      return v_exp->get_valueString() + "F";
-    }
-    case V_SgDoubleVal: {
-      SgDoubleVal* v_exp = isSgDoubleVal(exp);
-      return v_exp->get_valueString();
-    }
-    default:
-      return "[UNHANDLED printValueExp] " + exp->unparseToString();
-  }
+void examineBinaryOp(SgBinaryOp* expr) {
+  examineExpression(bi_expr->get_lhs_operand());
+  cout << printOperatorForBinaryOp(bi_expr);
+  examineExpression(bi_expr->get_rhs_operand());
 }
 
 void examineStatement(SgStatement* stmt) {
@@ -120,6 +104,11 @@ void examineStatement(SgStatement* stmt) {
         SgVariableDeclaration* d_stmt = isSgVariableDeclaration(stmt);
         examineVariableDeclaration(d_stmt);
         break;
+      }
+      case V_SgExprStatement: {
+        SgExprStatement* e_stmt = isSgExprStatement(stmt);
+        examineExpression(stmt->get_expression());
+        cout << ";" << endl;
       }
       default:
         cout << "[UNHANDLED examineStatement] " << stmt->unparseToString() << endl;
@@ -154,8 +143,8 @@ void examineScopeStatement(SgScopeStatement* scope, string name) {
       num_vars++;
     }
   }
-  cout << "[Scope " << name << "] Num symbols: " << symbol_nodes.size() << endl;
-  cout << "[Scope " << name << "] Num variable symbols: " << num_vars << endl;
+  // cout << "[Scope " << name << "] Num symbols: " << symbol_nodes.size() << endl;
+  // cout << "[Scope " << name << "] Num variable symbols: " << num_vars << endl;
 
   // Pretty print it
 
@@ -180,7 +169,8 @@ void examineVariableDeclaration(SgVariableDeclaration* decl) {
     SgInitializer* init_expr = name->get_initializer();
     if (init_expr) {
       cout << " = ";
-      examineExpression(init_expr);
+      // examineExpression(init_expr);
+      cout << "[INITIALIZER (" << init_expr->unparseToString() << ")]";
     }
     cout << ";" << endl;
   }
@@ -190,9 +180,7 @@ void examineExpression(SgExpression* expr) {
   switch(expr->variantT()) {
     case V_SgBinaryOp: {
       SgBinaryOp* bi_expr = isSgBinaryOp(expr);
-      examineExpression(bi_expr->get_lhs_operand());
-      cout << printOperatorForBinaryOp(bi_expr);
-      examineExpression(bi_expr->get_rhs_operand());
+      examineBinaryOp(bi_expr);
       break;
     }
     case V_SgIntVal: {
