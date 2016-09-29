@@ -116,10 +116,12 @@ string printStatement(SgStatement* stmt) {
         SgExprStatement* e_stmt = isSgExprStatement(stmt);
         output = output + printExpression(e_stmt->get_expression());
         output = output + ";\n";
+        break;
       }
       case V_SgReturnStmt: {
         SgReturnStmt* r_stmt = isSgReturnStmt(stmt);
         output = output + "return " + printExpression(r_stmt->get_expression());
+        break;
       }
       default:
         output = output + "[UNHANDLED printStatement] " + stmt->unparseToString() + "\n";
@@ -219,6 +221,7 @@ string printExpression(SgExpression* expr) {
       ostringstream convert;
       convert << v_exp->get_value();
       output = output + convert.str() + "UL";
+      break;
     }
     case V_SgFloatVal: {
       SgFloatVal* v_exp = isSgFloatVal(expr);
