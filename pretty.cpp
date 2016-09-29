@@ -205,7 +205,7 @@ void examineExpression(SgExpression* expr) {
     case V_SgAssignInitializer: {
       SgAssignInitializer* init_expr = isSgAssignInitializer(expr);
       examineExpression(init_expr->get_operand());
-      cout << " [INITIALIZER " << init_expr->class_name() << "] " << init_expr->unparseToString();
+      cout << " [INITIALIZER " << init_expr->get_operand()->class_name() << "] " << init_expr->get_operand()->unparseToString();
       break;
     }
     default:
