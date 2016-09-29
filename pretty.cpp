@@ -54,7 +54,7 @@ void examineFunctionDeclaration(SgFunctionDeclaration* decl) {
     // An SgBasicBlock is a subclass of SgScopeStatement
     examineScopeStatement(body,symbol->get_name().getString());
   } else {
-    cout << "[Func] - no body" << endl;
+    // cout << "[Func] - no body" << endl;
   }
 }
 
