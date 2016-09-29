@@ -132,14 +132,14 @@ string printStatement(SgStatement* stmt) {
         SgWhileStmt* while_stmt = isSgWhileStmt(stmt);
         SgExprStatement* the_test = isSgExprStatement(while_stmt->get_condition());
         SgStatement* the_body = while_stmt->get_body();
-        output = "while(" + printStatement(the_test) + ")\n" + printStatement(the_body);
+        output = "while(" + printExpression(the_test->get_expression()) + ")\n" + printStatement(the_body);
         break;
       }
       case V_SgDoWhileStmt: {
         SgDoWhileStmt* while_stmt = isSgDoWhileStmt(stmt);
         SgExprStatement* the_test = isSgExprStatement(while_stmt->get_condition());
         SgStatement* the_body = while_stmt->get_body();
-        output = "do\n" + printStatement(the_body) + "while (" + printStatement(the_test) + ");\n";
+        output = "do\n" + printStatement(the_body) + "while (" + printExpression(the_test->get_expression()) + ");\n";
         break;
       }
       case V_SgForStatement: {
