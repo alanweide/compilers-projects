@@ -55,6 +55,8 @@ void examineFunctionDeclaration(SgFunctionDeclaration* decl) {
 
   // TODO: parameter list
 
+  cout << "[debug line 58]" << endl;
+
   if (def) {
     cout << " {" << endl;
     SgBasicBlock* body = def->get_body();
@@ -62,6 +64,7 @@ void examineFunctionDeclaration(SgFunctionDeclaration* decl) {
     // cout << "[Func] - " << stmt_list.size() << " statements" << endl;
     // An SgBasicBlock is a subclass of SgScopeStatement; process the symbol table for this scope
     examineScopeStatement(body,symbol->get_name().getString());
+    count << "[debug line 67]" << endl;
     examineBasicBlock(body);
     cout << "}" << endl;
   } else if (symbol) {
