@@ -12,6 +12,8 @@ string printIfStmt(SgIfStmt* stmt);
 
 string printType(SgType* type) {
   switch(type->variantT()) {
+    case V_SgTypeVoid:
+      return "void";
     case V_SgTypeInt:
       return "int";
     case V_SgTypeLong:
@@ -29,7 +31,7 @@ string printType(SgType* type) {
       return printType(p_type->get_base_type()) + "*";
     }
     default:
-      return "[UNHANDLED " + type->class_name() + "] " + type->unparseToString();
+      return "/*UNHANDLED " + type->class_name() + "*/ " + type->unparseToString();
   }
 }
 
@@ -98,7 +100,7 @@ string printOperatorForBinaryOp(SgBinaryOp* op) {
     case V_SgSubtractOp:
       return " - ";
     default:
-      return " [UNHANDLED printOperatorForBinaryOp] ";
+      return " /*UNHANDLED binary operator*/, ";
   }
 }
 
@@ -157,7 +159,8 @@ string printStatement(SgStatement* stmt) {
         break;
       }
       default:
-        output = "[UNHANDLED printStatement] " + stmt->unparseToString() + ";\n";
+        output = "/*UNHANDLED " + stmt->class_name() + "*/ " + stmt->unparseToString() + ";\n";
+        break;
     }
     return output;
 }
@@ -232,7 +235,8 @@ string printScopeStatement(SgScopeStatement* scope) {
       break;
     }
     default:
-      output = "[UNHANDLED printScopeStatement] " + scope->unparseToString();
+      output = "/*UNHANDLED " + scope->class_name() + "*/ " + scope->unparseToString();
+      break;
   }
   return output;
 }
@@ -376,7 +380,8 @@ string printExpression(SgExpression* expr) {
       break;
     }
     default:
-      output = output + "[UNHANDLED " + expr->class_name() + "]" + expr->unparseToString();
+      output = output + "/*UNHANDLED " + expr->class_name() + "*/" + expr->unparseToString();
+      break;
   }
   if (expr->get_need_paren()) {
     output = output + ")";
@@ -425,7 +430,7 @@ string prettyPrint(SgProject* project) {
   SgFilePtrList::const_iterator file_iter;
   for (file_iter = file_list.begin(); file_iter != file_list.end(); file_iter++) {
     SgSourceFile* file = isSgSourceFile(*file_iter);
-    cout << "[Print] File: " << file->getFileName() << endl;
+    // cout << "[Print] File: " << file->getFileName() << endl;
 
     // process the symbol table at the global scope; SgGlobal is a
     // subclass of SgScopeStatement
