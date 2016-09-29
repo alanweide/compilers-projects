@@ -80,7 +80,7 @@ void examineBasicBlock(SgBasicBlock* block) {
     SgStatement* stmt = *iter;
     switch(stmt->variantT()) {
       case V_SgVariableDeclaration:
-        SgDeclarationStatement* d_stmt = isSgVariableDeclaration(stmt);
+        SgVariableDeclaration* d_stmt = isSgVariableDeclaration(stmt);
         examineVariableDeclaration(d_stmt);
         break;
       default:
