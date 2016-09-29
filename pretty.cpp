@@ -327,7 +327,7 @@ string printExpression(SgExpression* expr) {
       }
       break;
     }
-    case SgMinusMinusOp: {
+    case V_SgMinusMinusOp: {
       SgMinusMinusOp* p_exp = isSgMinusMinusOp(expr);
       if (p_exp->get_mode() == SgUnaryOp::prefix) {
         output = "--" + printExpression(p_exp->get_operand());
@@ -369,7 +369,8 @@ string printFunctionDeclaration(SgFunctionDeclaration* decl) {
     SgStatementPtrList& stmt_list = body->get_statements();
     // cout << "[Func] - " << stmt_list.size() << " statements" << endl;
     // An SgBasicBlock is a subclass of SgScopeStatement; process the symbol table for this scope
-    output = output + printScopeStatement(body,symbol->get_name().getString());
+    // output = output + printScopeStatement(body,symbol->get_name().getString());
+    output = output + printScopeStatement(body);
   } else if (symbol) {
     output = output + symbol->get_type()->class_name() + " " + symbol->get_name().getString() + "();\n";
   }
