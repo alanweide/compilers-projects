@@ -4,6 +4,7 @@ using namespace std;
 void examineScopeStatement(SgScopeStatement* scope, string name);
 void examineVariableDeclaration(SgVariableDeclaration* decl);
 void examineFunctionDeclaration(SgFunctionDeclaration* decl);
+void examineBasicBlock(SgBasicBlock* block);
 void examineExpression(SgExpression* expr);
 
 string printType(SgType* type) {
@@ -113,6 +114,25 @@ string printValueExp(SgValueExp* exp) {
   }
 }
 
+void examineBasicBlock(SgBasicBlock* block) {
+  SgStatementPtrList& stmt_list = scope->get_statements();
+  SgStatementPtrList::const_iterator iter;
+  cout << "{" << endl;
+  for (iter=stmt_list.begin(); iter != stmt_list.end(); iter++) {
+    SgStatement* stmt = *iter;
+    switch(stmt->variantT()) {
+      case V_SgVariableDeclaration: {
+        SgVariableDeclaration* d_stmt = isSgVariableDeclaration(stmt);
+        examineVariableDeclaration(d_stmt);
+        break;
+      }
+      default:
+        cout << "[UNHANDLED] " << stmt->unparseToString() << endl;
+    }
+  }
+  cout << "}" << endl;
+}
+
 void examineScopeStatement(SgScopeStatement* scope, string name) {
 
   // Debug info
@@ -133,21 +153,15 @@ void examineScopeStatement(SgScopeStatement* scope, string name) {
   cout << "[Scope " << name << "] Num symbols: " << symbol_nodes.size() << endl;
   cout << "[Scope " << name << "] Num variable symbols: " << num_vars << endl;
 
-  // Pretty print
+  // Pretty print it
 
-  SgStatementPtrList& stmt_list = scope->get_statements();
-  SgStatementPtrList::const_iterator iter;
-  for (iter=stmt_list.begin(); iter != stmt_list.end(); iter++) {
-    SgStatement* stmt = *iter;
-    switch(stmt->variantT()) {
-      case V_SgVariableDeclaration: {
-        SgVariableDeclaration* d_stmt = isSgVariableDeclaration(stmt);
-        examineVariableDeclaration(d_stmt);
-        break;
-      }
-      default:
-        cout << "[UNHANDLED] " << stmt->unparseToString() << endl;
+  switch(scope->variantT()) {
+    case V_SgBasicBlock: {
+      SgBasicBlock* block = isSgBasicBlock(scope);
+      examineBasicBlock(block);
     }
+    default:
+      cout << "[UNHANDLED] " << scope->unparseToString();
   }
 }
 
@@ -193,15 +207,13 @@ void examineFunctionDeclaration(SgFunctionDeclaration* decl) {
 
     // TODO: parameter list
 
-    cout << " {" << endl;
     SgBasicBlock* body = def->get_body();
     SgStatementPtrList& stmt_list = body->get_statements();
     // cout << "[Func] - " << stmt_list.size() << " statements" << endl;
     // An SgBasicBlock is a subclass of SgScopeStatement; process the symbol table for this scope
     examineScopeStatement(body,symbol->get_name().getString());
-    cout << "}" << endl;
   } else if (symbol) {
-    cout << ";" << endl;
+    cout << symbol->get_type()->class_name() << " " << symbol->get_name().getString() << "();" << endl;
   }
 }
 
