@@ -79,10 +79,11 @@ void examineBasicBlock(SgBasicBlock* block) {
   for (iter=stmt_list.begin(); iter != stmt_list.end(); iter++) {
     SgStatement* stmt = *iter;
     switch(stmt->variantT()) {
-      case V_SgVariableDeclaration:
+      case V_SgVariableDeclaration: {
         SgVariableDeclaration* d_stmt = isSgVariableDeclaration(stmt);
         examineVariableDeclaration(d_stmt);
         break;
+      }
       default:
         cout << "[UNHANDLED] " << stmt->unparseToString() << endl;
     }
