@@ -41,16 +41,16 @@ void examineVariableDeclaration(SgVariableDeclaration* decl) {
 void examineFunctionDeclaration(SgFunctionDeclaration* decl) {
   SgSymbol* symbol = decl->get_symbol_from_symbol_table();
   if (symbol) { // for some reason, some functions do not have symbols
-    cout << "[Func] Function (name:"<<symbol->get_name().getString();
-    cout << ",type:"<<symbol->get_type()->class_name() << ")" << endl;
+    // cout << "[Func] Function (name:"<<symbol->get_name().getString();
+    // cout << ",type:"<<symbol->get_type()->class_name() << ")" << endl;
   } else {
-    cout << "[Func] Function (no name)" << endl;
+    // cout << "[Func] Function (no name)" << endl;
   }
   SgFunctionDefinition* def = decl->get_definition();
   if (def) {
     SgBasicBlock* body = def->get_body();
     SgStatementPtrList& stmt_list = body->get_statements();
-    cout << "[Func] - " << stmt_list.size() << " statements" << endl;
+    // cout << "[Func] - " << stmt_list.size() << " statements" << endl;
     // An SgBasicBlock is a subclass of SgScopeStatement
     examineScopeStatement(body,symbol->get_name().getString());
   } else {
