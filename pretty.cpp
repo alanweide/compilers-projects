@@ -205,7 +205,6 @@ void examineExpression(SgExpression* expr) {
     case V_SgAssignInitializer: {
       SgAssignInitializer* init_expr = isSgAssignInitializer(expr);
       examineExpression(init_expr->get_operand());
-      cout << " [INITIALIZER " << init_expr->get_operand()->class_name() << "] " << init_expr->get_operand()->unparseToString();
       break;
     }
     default:
@@ -218,9 +217,20 @@ void examineFunctionDeclaration(SgFunctionDeclaration* decl) {
   SgFunctionDefinition* def = decl->get_definition();
   if (def) {
     SgFunctionDeclaration* f_decl = def->get_declaration();
-    cout << printType(f_decl->get_orig_return_type()) << " " << f_decl->get_name().getString() << "()" << endl;
+    cout << printType(f_decl->get_orig_return_type()) << " " << f_decl->get_name().getString() << "(";
 
     // TODO: parameter list
+    SgInitializedNamePtrList& params = f_decl->get_args();
+    SgInitializedNamePtrList::const_iterator param_iter;
+    int firstOne = 1;
+    for (param_iter = params.begin(); param_iter != params.end(); param_iter++) {
+      if (!firstOne) {
+        cout << ", ";
+        firstOne = 0;
+      }
+      cout << printType(param_iter->get_type()) << " " << param_iter->get_name().getString();
+    }
+    cout << ")" << endl;
 
     SgBasicBlock* body = def->get_body();
     SgStatementPtrList& stmt_list = body->get_statements();
