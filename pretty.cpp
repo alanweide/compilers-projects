@@ -21,8 +21,22 @@ string printType(SgType* type) {
   }
 }
 
-string printCompoundAssignOperator(SgBinaryOp* op) {
+string printOperatorForBinaryOp(SgBinaryOp* op) {
   switch(op->variantT()) {
+    case V_SgAddOp:
+      return " + ";
+    case V_SgAndOp:
+      return " && ";
+    case V_SgAssignOp:
+      return " = ";
+    case V_SgBitAndOp:
+      return " & ";
+    case V_SgBitOrOp:
+      return " | ";
+    case V_SgBitXorOp:
+      return " ^ ";
+
+    // Begin Compound Assignments
     case V_SgAndAssignOp:
       return " &= ";
     case V_SgDivAssignOp:
@@ -43,27 +57,8 @@ string printCompoundAssignOperator(SgBinaryOp* op) {
       return " >>= ";
     case V_SgXorAssignOp:
       return " ^= ";
-    default:
-      return " [UNHANDLED] ";
-  }
-}
+    // End Compound Assignments
 
-string printOperatorForBinaryOp(SgBinaryOp* op) {
-  switch(op->variantT()) {
-    case V_SgAddOp:
-      return " + ";
-    case V_SgAndOp:
-      return " && ";
-    case V_SgAssignOp:
-      return " = ";
-    case V_SgBitAndOp:
-      return " & ";
-    case V_SgBitOrOp:
-      return " | ";
-    case V_SgBitXorOp:
-      return " ^ ";
-    case V_SgCompoundAssignOp:
-      return printCompoundAssignOperator(op);
     case V_SgDivideOp:
       return " / ";
     case V_SgEqualityOp:
@@ -102,7 +97,7 @@ string printValueExp(SgValueExp* exp) {
       return v_exp->get_valueString();
     }
     case V_SgLongIntVal: {
-      SgLongIntValExp* v_exp = isSgLongIntVal(exp);
+      SgLongIntVal* v_exp = isSgLongIntVal(exp);
       return v_exp->get_valueString() + "L";
     }
     case V_SgFloatVal: {
