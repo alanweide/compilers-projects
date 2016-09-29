@@ -32,7 +32,7 @@ void examineVariableDeclaration(SgVariableDeclaration* decl) {
     if (init_expr) {
       cout << init_expr->class_name();
     }
-    cout << ", ";
+    cout << ";" << endl;
     // cout << "[Decl] Variable (name:"<<symbol->get_name().getString();
     // cout << ",type:"<<symbol->get_type()->class_name();
     // cout << ",init:";
@@ -44,7 +44,6 @@ void examineVariableDeclaration(SgVariableDeclaration* decl) {
     // }
     // cout << ")" << endl;
   }
-  cout << ";" << endl;
 }
 
 void examineFunctionDeclaration(SgFunctionDeclaration* decl) {
@@ -53,7 +52,7 @@ void examineFunctionDeclaration(SgFunctionDeclaration* decl) {
   if (def) {
     SgFunctionDeclaration* f_decl = def->get_declaration();
     cout << "[debug: f_decl = " << f_decl->unparseToString() << "]" << endl;
-    cout << f_decl->get_orig_return_type()->class_name() << " " << f_decl->get_name().getString() << "()";
+    cout << f_decl->get_orig_return_type()->class_name().getString() << " " << f_decl->get_name().getString() << "()";
 
     // TODO: parameter list
 
