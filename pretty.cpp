@@ -51,12 +51,13 @@ void examineFunctionDeclaration(SgFunctionDeclaration* decl) {
   SgSymbol* symbol = decl->get_symbol_from_symbol_table();
   cout << "[debug line 52]" << endl;
   SgFunctionDefinition* def = decl->get_definition();
+  cout << "[debug line 54]" << endl;
   SgFunctionDeclaration* f_decl = def->get_declaration();
+  cout << "[debug line 56]" << endl;
   cout << f_decl->get_orig_return_type()->class_name() << " " << f_decl->get_name().getString() << "()";
 
   // TODO: parameter list
 
-  cout << "[debug line 58]" << endl;
 
   if (def) {
     cout << " {" << endl;
@@ -65,7 +66,7 @@ void examineFunctionDeclaration(SgFunctionDeclaration* decl) {
     // cout << "[Func] - " << stmt_list.size() << " statements" << endl;
     // An SgBasicBlock is a subclass of SgScopeStatement; process the symbol table for this scope
     examineScopeStatement(body,symbol->get_name().getString());
-    cout << "[debug line 67]" << endl;
+    cout << "[debug line 69]" << endl;
     examineBasicBlock(body);
     cout << "}" << endl;
   } else if (symbol) {
