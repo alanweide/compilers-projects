@@ -42,10 +42,11 @@ void examineVariableDeclaration(SgVariableDeclaration* decl) {
   for (name_iter = name_list.begin(); name_iter != name_list.end(); name_iter++) {
     SgInitializedName* name = *name_iter;
     SgSymbol* symbol = name->get_symbol_from_symbol_table();
-    cout << symbol->get_type()->class_name() << " " << symbol->get_name().getString();
+    cout << printType(symbol->get_type()) << " " << symbol->get_name().getString();
     SgInitializer* init_expr = name->get_initializer();
     if (init_expr) {
-      cout << init_expr->class_name();
+      cout << " = " << init_expr.getString();
+      // examineInitializer(init_expr);
     }
     cout << ";" << endl;
   }
