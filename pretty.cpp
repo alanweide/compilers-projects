@@ -224,11 +224,12 @@ void examineFunctionDeclaration(SgFunctionDeclaration* decl) {
     SgInitializedNamePtrList::const_iterator param_iter;
     int firstOne = 1;
     for (param_iter = params.begin(); param_iter != params.end(); param_iter++) {
+      SgInitializedName* param = *param_iter;
       if (!firstOne) {
         cout << ", ";
         firstOne = 0;
       }
-      cout << printType(param_iter->get_type()) << " " << param_iter->get_name().getString();
+      cout << printType(param->get_type()) << " " << param->get_name().getString();
     }
     cout << ")" << endl;
 
