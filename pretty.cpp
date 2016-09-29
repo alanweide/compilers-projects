@@ -136,7 +136,7 @@ string printStatement(SgStatement* stmt) {
         break;
       }
       case V_SgDoWhileStmt: {
-        SgWhileStmt* while_stmt = isSgWhileStmt(stmt);
+        SgDoWhileStmt* while_stmt = isSgDoWhileStmt(stmt);
         SgExprStatement* the_test = isSgExprStatement(while_stmt->get_condition());
         SgStatement* the_body = while_stmt->get_body();
         output = "do\n" + printStatement(the_body) + "while (" + printStatement(the_test) + ");\n";
