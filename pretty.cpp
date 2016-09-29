@@ -114,12 +114,7 @@ string printValueExp(SgValueExp* exp) {
   }
 }
 
-void examineBasicBlock(SgBasicBlock* block) {
-  SgStatementPtrList& stmt_list = block->get_statements();
-  SgStatementPtrList::const_iterator iter;
-  cout << "{" << endl;
-  for (iter=stmt_list.begin(); iter != stmt_list.end(); iter++) {
-    SgStatement* stmt = *iter;
+void examineStatement(SgStatement* stmt) {
     switch(stmt->variantT()) {
       case V_SgVariableDeclaration: {
         SgVariableDeclaration* d_stmt = isSgVariableDeclaration(stmt);
@@ -127,8 +122,17 @@ void examineBasicBlock(SgBasicBlock* block) {
         break;
       }
       default:
-        cout << "[UNHANDLED examineBasicBlock] " << stmt->unparseToString() << endl;
+        cout << "[UNHANDLED examineStatement] " << stmt->unparseToString() << endl;
     }
+}
+
+void examineBasicBlock(SgBasicBlock* block) {
+  SgStatementPtrList& stmt_list = block->get_statements();
+  SgStatementPtrList::const_iterator iter;
+  cout << "{" << endl;
+  for (iter=stmt_list.begin(); iter != stmt_list.end(); iter++) {
+    SgStatement* stmt = *iter;
+    examineStatement(stmt);
   }
   cout << "}" << endl;
 }
@@ -159,6 +163,7 @@ void examineScopeStatement(SgScopeStatement* scope, string name) {
     case V_SgBasicBlock: {
       SgBasicBlock* block = isSgBasicBlock(scope);
       examineBasicBlock(block);
+      break;
     }
     default:
       cout << "[UNHANDLED examineScopeStatement] " << scope->unparseToString();
@@ -189,7 +194,10 @@ void examineExpression(SgExpression* expr) {
       cout << printOperatorForBinaryOp(bi_expr);
       examineExpression(bi_expr->get_rhs_operand());
     }
-    case V_SgValueExp: {
+    case V_SgIntVal:
+    case V_SgLongIntVal:
+    case V_SgFloatVal:
+    case V_SgDoubleVal: {
       SgValueExp* val_exp = isSgValueExp(expr);
       cout << printValueExp(val_exp);
     }
