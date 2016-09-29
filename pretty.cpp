@@ -253,7 +253,8 @@ string printVariableDeclaration(SgVariableDeclaration* decl) {
 string printExpression(SgExpression* expr) {
   string output = "";
   switch(expr->variantT()) {
-    case V_SgBinaryOp: {
+    case V_SgBinaryOp:
+         V_SgAssignOp: {
       SgBinaryOp* bi_expr = isSgBinaryOp(expr);
       output = output + printBinaryOp(bi_expr);
       break;
