@@ -51,7 +51,7 @@ void examineFunctionDeclaration(SgFunctionDeclaration* decl) {
   SgFunctionDefinition* def = decl->get_definition();
   if (def) {
     SgFunctionDeclaration* f_decl = def->get_declaration();
-    cout << f_decl->get_orig_return_type().getString() << " " << f_decl->get_name().getString() << "()";
+    cout << f_decl->get_orig_return_type()->get_mangled().getString() << " " << f_decl->get_name().getString() << "()";
 
     // TODO: parameter list
 
