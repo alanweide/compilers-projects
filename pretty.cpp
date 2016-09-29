@@ -135,7 +135,7 @@ void examineScopeStatement(SgScopeStatement* scope, string name) {
 
   // Pretty print
 
-  SgStatementPtrList& stmt_list = block->get_statements();
+  SgStatementPtrList& stmt_list = scope->get_statements();
   SgStatementPtrList::const_iterator iter;
   for (iter=stmt_list.begin(); iter != stmt_list.end(); iter++) {
     SgStatement* stmt = *iter;
@@ -171,7 +171,9 @@ void examineExpression(SgExpression* expr) {
   switch(expr->variantT()) {
     case V_SgBinaryOp: {
       SgBinaryOp* bi_expr = isSgBinaryOp(expr);
-      cout << examineExpression(bi_expr->get_lhs_operand()) << printOperatorForBinaryOp(bi_expr) << examineExpression(bi_expr->get_rhs_operand());
+      examineExpression(bi_expr->get_lhs_operand());
+      cout << printOperatorForBinaryOp(bi_expr);
+      examineExpression(bi_expr->get_rhs_operand());
     }
     case V_SgValueExp: {
       SgValueExp* val_exp = isSgValueExp(expr);
