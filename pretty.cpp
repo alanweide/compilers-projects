@@ -32,7 +32,7 @@ void examineVariableDeclaration(SgVariableDeclaration* decl) {
     if (init_expr) {
       cout << init_expr->class_name();
     }
-    cout << ";" << endl;
+    cout << ", ";
     // cout << "[Decl] Variable (name:"<<symbol->get_name().getString();
     // cout << ",type:"<<symbol->get_type()->class_name();
     // cout << ",init:";
@@ -44,24 +44,19 @@ void examineVariableDeclaration(SgVariableDeclaration* decl) {
     // }
     // cout << ")" << endl;
   }
+  cout << ";" << endl;
 }
 
 void examineFunctionDeclaration(SgFunctionDeclaration* decl) {
   SgSymbol* symbol = decl->get_symbol_from_symbol_table();
-  if (symbol) { // for some reason, some functions do not have symbols
-    cout << symbol->get_type()->class_name() << " " << symbol->get_name().getString();
-
-    // TODO Print out parameter list
-    cout << "()";
-
-    // cout << "[Func] Function (name:"<<symbol->get_name().getString();
-    // cout << ",type:"<<symbol->get_type()->class_name() << ")" << endl;
-  } else {
-    // cout << "[Func] Function (no name)" << endl;
-  }
   SgFunctionDefinition* def = decl->get_definition();
+  SgFunctionDeclaration* f_decl = def->get_declaration();
+  cout << f_decl->get_orig_return_type()->class_name() << " " << f_decl->get_name().getString() << "()";
+
+  // TODO: parameter list
+
   if (def) {
-    cout << endl << "{" << endl;
+    cout << " {" << endl;
     SgBasicBlock* body = def->get_body();
     SgStatementPtrList& stmt_list = body->get_statements();
     // cout << "[Func] - " << stmt_list.size() << " statements" << endl;
@@ -69,7 +64,7 @@ void examineFunctionDeclaration(SgFunctionDeclaration* decl) {
     examineScopeStatement(body,symbol->get_name().getString());
     examineBasicBlock(body);
     cout << "}" << endl;
-  } else {
+  } else if (symbol) {
     cout << ";" << endl;
   }
 }
