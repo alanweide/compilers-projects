@@ -3,6 +3,21 @@ using namespace std;
 
 void examineBasicBlock(SgBasicBlock* block);
 
+string printType(SgType* type) {
+  switch(type->variantT()0 {
+    case V_SgTypeInt:
+      return "int";
+    case V_SgTypeLong:
+      return "long";
+    case V_SgTypeFloat:
+      return "float";
+    case V_SgTypeDouble:
+      return "double";
+    default:
+      return "[UNHANDLED] " + type->unparseToString();
+  }
+}
+
 void examineScopeStatement(SgScopeStatement* scope, string name) {
   SgSymbolTable* symbol_table = scope->get_symbol_table();
   set<SgNode*> symbol_nodes = symbol_table->get_symbols();
@@ -47,41 +62,24 @@ void examineVariableDeclaration(SgVariableDeclaration* decl) {
 }
 
 void examineFunctionDeclaration(SgFunctionDeclaration* decl) {
-  // SgSymbol* symbol = decl->get_symbol_from_symbol_table();
-  // SgFunctionDefinition* def = decl->get_definition();
-  // if (def) {
-  //   SgFunctionDeclaration* f_decl = def->get_declaration();
-  //   cout << f_decl->get_orig_return_type()->get_mangled().getString() << " " << f_decl->get_name().getString() << "()";
-
-  //   // TODO: parameter list
-
-  //   cout << " {" << endl;
-  //   SgBasicBlock* body = def->get_body();
-  //   SgStatementPtrList& stmt_list = body->get_statements();
-  //   // cout << "[Func] - " << stmt_list.size() << " statements" << endl;
-  //   // An SgBasicBlock is a subclass of SgScopeStatement; process the symbol table for this scope
-  //   examineScopeStatement(body,symbol->get_name().getString());
-  //   examineBasicBlock(body);
-  //   cout << "}" << endl;
-  // } else if (symbol) {
-  //   cout << ";" << endl;
-  // }
   SgSymbol* symbol = decl->get_symbol_from_symbol_table();
-  if (symbol) { // for some reason, some functions do not have symbols
-    cout << "[Func] Function (name:"<<symbol->get_name().getString();
-    cout << ",type:"<<symbol->get_type()->class_name() << ")" << endl;
-  } else {
-    cout << "[Func] Function (no name)" << endl;
-  }
   SgFunctionDefinition* def = decl->get_definition();
   if (def) {
+    SgFunctionDeclaration* f_decl = def->get_declaration();
+    cout << printType(f_decl->get_orig_return_type()->class_name()) << " " << f_decl->get_name().getString() << "()";
+
+    // TODO: parameter list
+
+    cout << " {" << endl;
     SgBasicBlock* body = def->get_body();
     SgStatementPtrList& stmt_list = body->get_statements();
-    cout << "[Func] - " << stmt_list.size() << " statements" << endl;
-    // An SgBasicBlock is a subclass of SgScopeStatement
+    // cout << "[Func] - " << stmt_list.size() << " statements" << endl;
+    // An SgBasicBlock is a subclass of SgScopeStatement; process the symbol table for this scope
     examineScopeStatement(body,symbol->get_name().getString());
-  } else {
-    cout << "[Func] - no body" << endl;
+    examineBasicBlock(body);
+    cout << "}" << endl;
+  } else if (symbol) {
+    cout << ";" << endl;
   }
 }
 
