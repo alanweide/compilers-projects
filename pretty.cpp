@@ -124,7 +124,7 @@ string printStatement(SgStatement* stmt) {
         break;
       }
       default:
-        output = output + "[UNHANDLED printStatement] " + stmt->unparseToString() + "\n";
+        output = output + "[UNHANDLED printStatement] " + stmt->unparseToString();
     }
     return output + ";\n";
 }
@@ -240,6 +240,10 @@ string printExpression(SgExpression* expr) {
       SgAssignInitializer* init_expr = isSgAssignInitializer(expr);
       output = output + printExpression(init_expr->get_operand());
       break;
+    }
+    case V_SgVarRefExp: {
+      SgVarRefExp* v_exp = isSgVarRefExp(expr);
+      output = output + v_exp->get_symbol()->get_name().getString();
     }
     default:
       output = output + "[UNHANDLED printExpression (" + expr->class_name() + ")] " + expr->unparseToString();
