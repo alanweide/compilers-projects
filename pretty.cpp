@@ -24,8 +24,12 @@ string printType(SgType* type) {
       SgArrayType* a_type = isSgArrayType(type);
       return printType(a_type->get_base_type()) + "[" + printExpression(a_type->get_index()) + "]";
     }
+    case V_SgPointerType: {
+      SgPointerType* p_type = isSgPointerType(type);
+      return printType(p_type->get_base_type()) + "*";
+    }
     default:
-      return "[UNHANDLED printType " + type->class_name() + "] " + type->unparseToString();
+      return "[UNHANDLED " + type->class_name() + "] " + type->unparseToString();
   }
 }
 
