@@ -19,7 +19,7 @@ string printType(SgType* type) {
     case V_SgTypeDouble:
       return "double";
     default:
-      return "[UNHANDLED printType] " + type->unparseToString();
+      return "[UNHANDLED printType " << type->class_name() << "] " + type->unparseToString();
   }
 }
 
@@ -217,21 +217,22 @@ void examineFunctionDeclaration(SgFunctionDeclaration* decl) {
   SgFunctionDefinition* def = decl->get_definition();
   if (def) {
     SgFunctionDeclaration* f_decl = def->get_declaration();
-    cout << printType(f_decl->get_orig_return_type()) << " " << f_decl->get_name().getString() << "(";
+    cout << printType(f_decl->get_orig_return_type()) << " " << f_decl->get_name().getString() << "()";
 
-    // TODO: parameter list
-    SgInitializedNamePtrList& params = f_decl->get_args();
-    SgInitializedNamePtrList::const_iterator param_iter;
-    int firstOne = 1;
-    for (param_iter = params.begin(); param_iter != params.end(); param_iter++) {
-      SgInitializedName* param = *param_iter;
-      if (!firstOne) {
-        cout << ", ";
-        firstOne = 0;
-      }
-      cout << printType(param->get_type()) << " " << param->get_name().getString();
-    }
-    cout << ")" << endl;
+    // // TODO: parameter list
+    // cout << "(";
+    // SgInitializedNamePtrList& params = f_decl->get_args();
+    // SgInitializedNamePtrList::const_iterator param_iter;
+    // int firstOne = 1;
+    // for (param_iter = params.begin(); param_iter != params.end(); param_iter++) {
+    //   SgInitializedName* param = *param_iter;
+    //   if (!firstOne) {
+    //     cout << ", ";
+    //     firstOne = 0;
+    //   }
+    //   cout << printType(param->get_type()) << " " << param->get_name().getString();
+    // }
+    // cout << ")" << endl;
 
     SgBasicBlock* body = def->get_body();
     SgStatementPtrList& stmt_list = body->get_statements();

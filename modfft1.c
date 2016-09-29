@@ -1,7 +1,7 @@
 double data_real[1024], data_imag[1024];
 double coef_real[1024];
 double coef_imag[1024];
-double fft(int i) {
+double fft() {
   int i, j, k;
   double temp_real;
   double temp_imag;
