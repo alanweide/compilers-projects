@@ -169,8 +169,8 @@ void examineVariableDeclaration(SgVariableDeclaration* decl) {
     SgInitializer* init_expr = name->get_initializer();
     if (init_expr) {
       cout << " = ";
-      // examineExpression(init_expr);
-      cout << "[INITIALIZER (" << init_expr->unparseToString() << ")]";
+      examineExpression(init_expr);
+      cout << " [TYPE = " + << init_expr->get_type()->class_name() << "]";
     }
     cout << ";" << endl;
   }
