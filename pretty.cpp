@@ -47,9 +47,10 @@ void examineVariableDeclaration(SgVariableDeclaration* decl) {
 void examineFunctionDeclaration(SgFunctionDeclaration* decl) {
   SgSymbol* symbol = decl->get_symbol_from_symbol_table();
   if (symbol) { // for some reason, some functions do not have symbols
-    cout << symbol->get_type()->class_name() << " " << symbol->get_name().getString() << "();" << endl;
+    cout << symbol->get_type()->class_name() << " " << symbol->get_name().getString();
 
     // TODO Print out parameter list
+    cout << "()" << endl;
 
     // cout << "[Func] Function (name:"<<symbol->get_name().getString();
     // cout << ",type:"<<symbol->get_type()->class_name() << ")" << endl;
@@ -61,11 +62,22 @@ void examineFunctionDeclaration(SgFunctionDeclaration* decl) {
     SgBasicBlock* body = def->get_body();
     SgStatementPtrList& stmt_list = body->get_statements();
     // cout << "[Func] - " << stmt_list.size() << " statements" << endl;
-    // An SgBasicBlock is a subclass of SgScopeStatement
+    // An SgBasicBlock is a subclass of SgScopeStatement; process the symbol table for this scope
     examineScopeStatement(body,symbol->get_name().getString());
-  } else {
-    // cout << "[Func] - no body" << endl;
-    cout << ";" << endl;
+    examineBasicBlock(body);
+  }
+  cout << "}" << endl;
+}
+
+void examineBasicBlock(SgBasicBlock* block) {
+  SgStatementPtrList& stmt_list = bb->get_statements();
+  SgStatementPtrList::const_iterator iter;
+  for (iter=stmt_list.begin(); iter != stmt_list.end(); iter++) {
+    SgStatement* stmt = *iter;
+    switch(stmt->variantT()) {
+      default:
+        cout << "[UNHANDLED] " << stmt.unparseToString() << endl;
+    }
   }
 }
 
