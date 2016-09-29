@@ -126,7 +126,7 @@ string printStatement(SgStatement* stmt) {
       default:
         output = output + "[UNHANDLED printStatement] " + stmt->unparseToString() + "\n";
     }
-    return output;
+    return output + ";\n";
 }
 
 string printBasicBlock(SgBasicBlock* block) {
@@ -189,7 +189,6 @@ string printVariableDeclaration(SgVariableDeclaration* decl) {
     if (init_expr) {
       output = output + " = " + printExpression(init_expr);
     }
-    output = output + ";\n";
   }
   return output;
 }
@@ -304,7 +303,7 @@ string prettyPrint(SgProject* project) {
         output = output + printFunctionDeclaration(isSgFunctionDeclaration(decl));
       }
       if (isSgVariableDeclaration(decl)) {
-        output = output + printVariableDeclaration(isSgVariableDeclaration(decl));
+        output = output + printVariableDeclaration(isSgVariableDeclaration(decl)) + ";\n";
       }
     }
   }
