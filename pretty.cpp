@@ -419,6 +419,7 @@ string printFunctionDeclaration(SgFunctionDeclaration* decl) {
     // output = output + printScopeStatement(body,symbol->get_name().getString());
     output = output + printScopeStatement(body);
   } else if (symbol) {
+    SgFunctionDeclaration* f_decl = def->get_declaration();
     output = printType(f_decl->get_orig_return_type()) + " " + symbol->get_name().getString() + "();\n";
   }
   return output;
