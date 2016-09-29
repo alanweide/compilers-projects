@@ -100,7 +100,13 @@ void examineBinaryOp(SgBinaryOp* expr) {
 
 void examineStatement(SgStatement* stmt) {
     switch(stmt->variantT()) {
+      case V_SgVariableDefinition: {
+        cout << "[SgVariableDefinition]";
+        SgVariableDefinition* d_stmt = isSgVariableDefinition(stmt);
+        examineVariableDeclaration(d_stmt->get_declaration());
+      }
       case V_SgVariableDeclaration: {
+        cout << "[SgVariableDeclaration] ";
         SgVariableDeclaration* d_stmt = isSgVariableDeclaration(stmt);
         examineVariableDeclaration(d_stmt);
         break;
