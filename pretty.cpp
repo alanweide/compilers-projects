@@ -20,7 +20,7 @@ string printType(SgType* type) {
       return "double";
     case V_SgArrayType: {
       SgArrayType* a_type = isSgArrayType(type);
-      return a_type->get_base_type() + "[" + printExpression(a_type->get_index()) + "]";
+      return printType(a_type->get_base_type()) + "[" + printExpression(a_type->get_index()) + "]";
     }
     default:
       return "[UNHANDLED printType " + type->class_name() + "] " + type->unparseToString();
