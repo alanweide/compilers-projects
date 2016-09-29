@@ -251,6 +251,9 @@ string printVariableDeclaration(SgVariableDeclaration* decl) {
 
 string printExpression(SgExpression* expr) {
   string output = "";
+  if (expr->get_need_paren()) {
+    output = output + "(";
+  }
   switch(expr->variantT()) {
     case V_SgAddOp:
     case V_SgAndOp:
@@ -282,94 +285,97 @@ string printExpression(SgExpression* expr) {
     case V_SgRshiftOp:
     case V_SgSubtractOp: {
       SgBinaryOp* bi_expr = isSgBinaryOp(expr);
-      output = printBinaryOp(bi_expr);
+      output = output + printBinaryOp(bi_expr);
       break;
     }
     case V_SgIntVal: {
       SgIntVal* v_exp = isSgIntVal(expr);
       ostringstream convert;
       convert << v_exp->get_value();
-      output = convert.str();
+      output = output + convert.str();
       break;
     }
     case V_SgLongIntVal: {
       SgLongIntVal* v_exp = isSgLongIntVal(expr);
       ostringstream convert;
       convert << v_exp->get_value();
-      output = convert.str() + "L";
+      output = output + convert.str() + "L";
       break;
     }
     case V_SgUnsignedLongVal: {
       SgUnsignedLongVal* v_exp = isSgUnsignedLongVal(expr);
       ostringstream convert;
       convert << v_exp->get_value();
-      output = convert.str() + "UL";
+      output = output + convert.str() + "UL";
       break;
     }
     case V_SgFloatVal: {
       SgFloatVal* v_exp = isSgFloatVal(expr);
       ostringstream convert;
       convert << v_exp->get_value();
-      output = convert.str() + "F";
+      output = output + convert.str() + "F";
       break;
     }
     case V_SgDoubleVal: {
       SgDoubleVal* v_exp = isSgDoubleVal(expr);
       ostringstream convert;
       convert << v_exp->get_value();
-      output = convert.str();
+      output = output + convert.str();
       break;
     }
     case V_SgAssignInitializer: {
       SgAssignInitializer* init_expr = isSgAssignInitializer(expr);
-      output = printExpression(init_expr->get_operand());
+      output = output + printExpression(init_expr->get_operand());
       break;
     }
     case V_SgVarRefExp: {
       SgVarRefExp* v_exp = isSgVarRefExp(expr);
-      output = v_exp->get_symbol()->get_name().getString();
+      output = output + v_exp->get_symbol()->get_name().getString();
       break;
     }
     case V_SgPntrArrRefExp: {
       SgPntrArrRefExp* p_exp = isSgPntrArrRefExp(expr);
-      output = printExpression(p_exp->get_lhs_operand()) + "[" + printExpression(p_exp->get_rhs_operand()) + "]";
+      output = output + printExpression(p_exp->get_lhs_operand()) + "[" + printExpression(p_exp->get_rhs_operand()) + "]";
       break;
     }
     case V_SgPointerDerefExp: {
       SgPointerDerefExp* p_exp = isSgPointerDerefExp(expr);
-      output = "*" + printExpression(p_exp->get_operand());
+      output = output + "*" + printExpression(p_exp->get_operand());
       break;
     }
     case V_SgMinusOp: {
       SgMinusOp* m_exp = isSgMinusOp(expr);
-      output = "-" + printExpression(m_exp->get_operand());
+      output = output + "-" + printExpression(m_exp->get_operand());
       break;
     }
     case V_SgUnaryAddOp: {
       SgUnaryAddOp* a_exp = isSgUnaryAddOp(expr);
-      output = "+" + printExpression(a_exp->get_operand());
+      output = output + "+" + printExpression(a_exp->get_operand());
       break;
     }
     case V_SgPlusPlusOp: {
       SgPlusPlusOp* p_exp = isSgPlusPlusOp(expr);
       if (p_exp->get_mode() == SgUnaryOp::prefix) {
-        output = "++" + printExpression(p_exp->get_operand());
+        output = output + "++" + printExpression(p_exp->get_operand());
       } else {
-        output = printExpression(p_exp->get_operand()) + "++";
+        output = output + printExpression(p_exp->get_operand()) + "++";
       }
       break;
     }
     case V_SgMinusMinusOp: {
       SgMinusMinusOp* p_exp = isSgMinusMinusOp(expr);
       if (p_exp->get_mode() == SgUnaryOp::prefix) {
-        output = "--" + printExpression(p_exp->get_operand());
+        output = output + "--" + printExpression(p_exp->get_operand());
       } else {
-        output = printExpression(p_exp->get_operand()) + "--";
+        output = output + printExpression(p_exp->get_operand()) + "--";
       }
       break;
     }
     default:
-      output = "[UNHANDLED " + expr->class_name() + "]" + expr->unparseToString();
+      output = output + "[UNHANDLED " + expr->class_name() + "]" + expr->unparseToString();
+  }
+  if (expr->get_need_paren()) {
+    output = output + ")";
   }
   return output;
 }
