@@ -48,16 +48,6 @@ void examineVariableDeclaration(SgVariableDeclaration* decl) {
       cout << init_expr->class_name();
     }
     cout << ";" << endl;
-    // cout << "[Decl] Variable (name:"<<symbol->get_name().getString();
-    // cout << ",type:"<<symbol->get_type()->class_name();
-    // cout << ",init:";
-    // SgInitializer* init_expr = name->get_initializer();
-    // if (init_expr) {
-    //   cout << init_expr->class_name();
-    // } else {
-    //   cout << "none";
-    // }
-    // cout << ")" << endl;
   }
 }
 
@@ -89,6 +79,10 @@ void examineBasicBlock(SgBasicBlock* block) {
   for (iter=stmt_list.begin(); iter != stmt_list.end(); iter++) {
     SgStatement* stmt = *iter;
     switch(stmt->variantT()) {
+      case V_SgVariableDeclaration:
+        SgDeclarationStatement* d_stmt = isSgVariableDeclaration(stmt);
+        examineVariableDeclaration(d_stmt);
+        break;
       default:
         cout << "[UNHANDLED] " << stmt->unparseToString() << endl;
     }
