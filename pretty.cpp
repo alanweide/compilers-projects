@@ -7,7 +7,7 @@ string printFunctionDeclaration(SgFunctionDeclaration* decl);
 string printBasicBlock(SgBasicBlock* block);
 string printExpression(SgExpression* expr);
 string printBinaryOp(SgBinaryOp* expr);
-string printForStmt(SgForStmt* for_stmt);
+string printForStmt(SgForStatement* for_stmt);
 string printIfStmt(SgIfStmt* stmt);
 
 string printType(SgType* type) {
@@ -143,8 +143,8 @@ string printStatement(SgStatement* stmt) {
         output = output + "do\n" + printStatement(the_body) + "while (" + printStatement(the_test) + ");\n";
         break;
       }
-      case V_SgForStmt: {
-        SgForStmt* for_stmt = isSgForStmt(stmt);
+      case V_SgForStatement: {
+        SgForStatement* for_stmt = isSgForStatement(stmt);
         output = output + printForStmt(for_stmt);
         break;
       }
@@ -159,7 +159,7 @@ string printStatement(SgStatement* stmt) {
     return output;
 }
 
-string printForStmt(SgForStmt* for_stmt) {
+string printForStmt(SgForStatement* for_stmt) {
   string output = "";
   SgForInitStatement* init_stmt = for_stmt->get_for_init_stmt();
   SgStatementPtrList& init_stmt_list = init_stmt->get_init_stmt();
