@@ -194,13 +194,18 @@ void examineExpression(SgExpression* expr) {
       cout << printOperatorForBinaryOp(bi_expr);
       examineExpression(bi_expr->get_rhs_operand());
     }
-    case V_SgValueExp: {
+    case V_SgIntVal:
+         V_SgLongIntVal:
+         V_SgFloatVal:
+         V_SgDoubleVal
+         V_SgValueExp: {
       SgValueExp* val_exp = isSgValueExp(expr);
       cout << printValueExp(val_exp);
     }
     case V_SgAssignInitializer: {
       SgAssignInitializer* init_expr = isSgAssignInitializer(expr);
       examineExpression(init_expr->get_operand());
+      break;
     }
     default:
       cout << "[UNHANDLED examineExpression (" << expr->class_name() << ")] " << expr->unparseToString();
