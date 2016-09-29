@@ -1,4 +1,5 @@
 #include <rose.h>
+#include <string.h>
 using namespace std;
 
 string printScopeStatement(SgScopeStatement* scope, string name);
