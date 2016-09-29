@@ -19,7 +19,7 @@ string printType(SgType* type) {
     case V_SgTypeDouble:
       return "double";
     default:
-      return "[UNHANDLED printType " << type->class_name() << "] " + type->unparseToString();
+      return "[UNHANDLED printType " + type->class_name() + "] " + type->unparseToString();
   }
 }
 
