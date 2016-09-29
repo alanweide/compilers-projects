@@ -176,7 +176,7 @@ string printForStmt(SgForStatement* for_stmt) {
 
 string printIfStmt(SgIfStmt* stmt) {
   string output = "";
-  SgExprStatement* condition = isSgExprStatement(stmt->get_condition());
+  SgExprStatement* condition = isSgExprStatement(stmt->get_conditional());
   SgStatement* true_body = isSgStatement(stmt->get_true_body());
   SgStatement* false_body = isSgStatement(stmt->get_false_body());
   output = output + "if (" + printStatement(condition) + ")\n" + printStatement(true_body);
@@ -325,14 +325,16 @@ string printExpression(SgExpression* expr) {
       } else {
         output = printExpression(p_exp->get_operand()) + "++";
       }
+      break;
     }
     case SgMinusMinusOp: {
-            SgMinusMinusOp* p_exp = isSgMinusMinusOp(expr);
+      SgMinusMinusOp* p_exp = isSgMinusMinusOp(expr);
       if (p_exp->get_mode() == SgUnaryOp::prefix) {
         output = "--" + printExpression(p_exp->get_operand());
       } else {
         output = printExpression(p_exp->get_operand()) + "--";
       }
+      break;
     }
     default:
       output = output + "[UNHANDLED printExpression (" + expr->class_name() + ")] " + expr->unparseToString();
