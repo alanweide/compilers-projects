@@ -193,14 +193,27 @@ void examineExpression(SgExpression* expr) {
       examineExpression(bi_expr->get_lhs_operand());
       cout << printOperatorForBinaryOp(bi_expr);
       examineExpression(bi_expr->get_rhs_operand());
+      break;
     }
-    case V_SgIntVal:
-         V_SgLongIntVal:
-         V_SgFloatVal:
-         V_SgDoubleVal:
-         V_SgValueExp: {
-      SgValueExp* val_exp = isSgValueExp(expr);
-      cout << printValueExp(val_exp);
+    case V_SgIntVal: {
+      SgIntVal* v_exp = isSgIntVal(expr);
+      cout << v_exp->get_valueString();
+      break;
+    }
+    case V_SgLongIntVal: {
+      SgLongIntVal* v_exp = isSgLongIntVal(expr);
+      cout << v_exp->get_valueString() << "L";
+      break;
+    }
+    case V_SgFloatVal: {
+      SgFloatVal* v_exp = isSgFloatVal(expr);
+      cout << v_exp->get_valueString() << "F";
+      break;
+    }
+    case V_SgDoubleVal: {
+      SgDoubleVal* v_exp = isSgDoubleVal(expr);
+      cout << v_exp->get_valueString();
+      break;
     }
     case V_SgAssignInitializer: {
       SgAssignInitializer* init_expr = isSgAssignInitializer(expr);
