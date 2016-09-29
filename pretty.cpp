@@ -170,7 +170,7 @@ void examineVariableDeclaration(SgVariableDeclaration* decl) {
     if (init_expr) {
       cout << " = ";
       examineExpression(init_expr);
-      cout << " [CLASS = " << init_expr->class_name() << "]";
+      cout << " [TYPE = " << init_expr->get_type()->class_name() << "]";
     }
     cout << ";" << endl;
   }
