@@ -4,7 +4,7 @@ using namespace std;
 void examineBasicBlock(SgBasicBlock* block);
 
 string printType(SgType* type) {
-  switch(type->variantT()0 {
+  switch(type->variantT()) {
     case V_SgTypeInt:
       return "int";
     case V_SgTypeLong:
