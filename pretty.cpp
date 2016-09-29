@@ -78,7 +78,7 @@ void examineBasicBlock(SgBasicBlock* block) {
     SgStatement* stmt = *iter;
     switch(stmt->variantT()) {
       default:
-        cout << "[UNHANDLED] " << stmt.unparseToString() << endl;
+        cout << "[UNHANDLED] " << stmt->unparseToString() << endl;
     }
   }
 }
