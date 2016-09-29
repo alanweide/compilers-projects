@@ -45,7 +45,7 @@ void examineVariableDeclaration(SgVariableDeclaration* decl) {
     cout << printType(symbol->get_type()) << " " << symbol->get_name().getString();
     SgInitializer* init_expr = name->get_initializer();
     if (init_expr) {
-      cout << " = " << init_expr.getString();
+      cout << " = " << init_expr->unparseToString();
       // examineInitializer(init_expr);
     }
     cout << ";" << endl;
