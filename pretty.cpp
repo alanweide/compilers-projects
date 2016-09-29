@@ -330,11 +330,11 @@ string printExpression(SgExpression* expr) {
       output = v_exp->get_symbol()->get_name().getString();
       break;
     }
-    // case V_SgPntrArrRefExp: {
-    //   SgPntrArrRefExp* p_exp = isSgPntrArrRefExp(expr);
-    //   output = printExpression(p_exp->get_lhs_operand()) + "[" + printExpression(p_exp->get_rhs_operand()) = "]";
-    //   break;
-    // }
+    case V_SgPntrArrRefExp: {
+      SgPntrArrRefExp* p_exp = isSgPntrArrRefExp(expr);
+      output = printExpression(p_exp->get_lhs_operand()) + "[" + printExpression(p_exp->get_rhs_operand()) + "]";
+      break;
+    }
     case V_SgMinusOp: {
       SgMinusOp* m_exp = isSgMinusOp(expr);
       output = "-" + printExpression(m_exp->get_operand());
