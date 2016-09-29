@@ -49,6 +49,7 @@ void examineVariableDeclaration(SgVariableDeclaration* decl) {
 
 void examineFunctionDeclaration(SgFunctionDeclaration* decl) {
   SgSymbol* symbol = decl->get_symbol_from_symbol_table();
+  cout << "[debug line 52]" << endl;
   SgFunctionDefinition* def = decl->get_definition();
   SgFunctionDeclaration* f_decl = def->get_declaration();
   cout << f_decl->get_orig_return_type()->class_name() << " " << f_decl->get_name().getString() << "()";
