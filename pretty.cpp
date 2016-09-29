@@ -115,7 +115,7 @@ string printValueExp(SgValueExp* exp) {
 }
 
 void examineBasicBlock(SgBasicBlock* block) {
-  SgStatementPtrList& stmt_list = scope->get_statements();
+  SgStatementPtrList& stmt_list = block->get_statements();
   SgStatementPtrList::const_iterator iter;
   cout << "{" << endl;
   for (iter=stmt_list.begin(); iter != stmt_list.end(); iter++) {
