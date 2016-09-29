@@ -12,7 +12,7 @@
 #                       myfile3.cpp      <- No backslash on last line!
 
 SOURCE_FILES  =       \
-                      driver.cpp
+                      main.cpp pretty.cpp
 
 BINARY_FILE	=	mycompiler
 
