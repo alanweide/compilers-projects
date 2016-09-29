@@ -93,9 +93,9 @@ string printOperatorForBinaryOp(SgBinaryOp* op) {
 }
 
 void examineBinaryOp(SgBinaryOp* expr) {
-  examineExpression(bi_expr->get_lhs_operand());
-  cout << printOperatorForBinaryOp(bi_expr);
-  examineExpression(bi_expr->get_rhs_operand());
+  examineExpression(expr->get_lhs_operand());
+  cout << printOperatorForBinaryOp(expr);
+  examineExpression(expr->get_rhs_operand());
 }
 
 void examineStatement(SgStatement* stmt) {
@@ -107,7 +107,7 @@ void examineStatement(SgStatement* stmt) {
       }
       case V_SgExprStatement: {
         SgExprStatement* e_stmt = isSgExprStatement(stmt);
-        examineExpression(stmt->get_expression());
+        examineExpression(e_stmt->get_expression());
         cout << ";" << endl;
       }
       default:
