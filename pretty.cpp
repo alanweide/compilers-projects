@@ -197,7 +197,7 @@ void examineExpression(SgExpression* expr) {
     case V_SgIntVal:
          V_SgLongIntVal:
          V_SgFloatVal:
-         V_SgDoubleVal
+         V_SgDoubleVal:
          V_SgValueExp: {
       SgValueExp* val_exp = isSgValueExp(expr);
       cout << printValueExp(val_exp);
