@@ -335,6 +335,10 @@ string printExpression(SgExpression* expr) {
       output = printExpression(p_exp->get_lhs_operand()) + "[" + printExpression(p_exp->get_rhs_operand()) + "]";
       break;
     }
+    case V_SgPointerDerefExp: {
+      SgPointerDerefExp* p_exp = isSgPointerDerefExp(expr);
+      output = "*" + printExpression(p_exp->get_operand());
+    }
     case V_SgMinusOp: {
       SgMinusOp* m_exp = isSgMinusOp(expr);
       output = "-" + printExpression(m_exp->get_operand());
