@@ -1,7 +1,7 @@
 #include <rose.h>
 using namespace std;
 
-string printScopeStatement(SgScopeStatement* scope, string name);
+string printScopeStatement(SgScopeStatement* scope);
 string printVariableDeclaration(SgVariableDeclaration* decl);
 string printFunctionDeclaration(SgFunctionDeclaration* decl);
 string printBasicBlock(SgBasicBlock* block);
@@ -127,7 +127,7 @@ string printStatement(SgStatement* stmt) {
       case V_SgIfStmt: {
         SgIfStmt* i_stmt = isSgIfStmt(stmt);
         output = output + printIfStmt(i_stmt);
-        breka;
+        break;
       }
       case V_SgWhileStmt: {
         SgWhileStmt* while_stmt = isSgWhileStmt(stmt);
@@ -199,7 +199,7 @@ string printBasicBlock(SgBasicBlock* block) {
   return output;
 }
 
-string printScopeStatement(SgScopeStatement* scope, string name) {
+string printScopeStatement(SgScopeStatement* scope) {
   string output = "";
 
   // Debug info
