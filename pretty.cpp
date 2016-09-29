@@ -47,6 +47,10 @@ void examineVariableDeclaration(SgVariableDeclaration* decl) {
 void examineFunctionDeclaration(SgFunctionDeclaration* decl) {
   SgSymbol* symbol = decl->get_symbol_from_symbol_table();
   if (symbol) { // for some reason, some functions do not have symbols
+    cout << symbol->get_type()->class_name() << " " << symbol->get_name().getString() << "();" << endl;
+
+    // TODO Print out parameter list
+
     // cout << "[Func] Function (name:"<<symbol->get_name().getString();
     // cout << ",type:"<<symbol->get_type()->class_name() << ")" << endl;
   } else {
@@ -61,6 +65,7 @@ void examineFunctionDeclaration(SgFunctionDeclaration* decl) {
     examineScopeStatement(body,symbol->get_name().getString());
   } else {
     // cout << "[Func] - no body" << endl;
+    cout << ";" << endl;
   }
 }
 
