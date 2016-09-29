@@ -166,7 +166,7 @@ string printScopeStatement(SgScopeStatement* scope, string name) {
       break;
     }
     default:
-      output = output + "[UNHANDLED examineScopeStatement] " << scope->unparseToString();
+      output = output + "[UNHANDLED examineScopeStatement] " + scope->unparseToString();
   }
   return output;
 }
@@ -198,22 +198,22 @@ string printExpression(SgExpression* expr) {
     }
     case V_SgIntVal: {
       SgIntVal* v_exp = isSgIntVal(expr);
-      output = output + v_exp->get_value();
+      output = output + to_string(v_exp->get_value());
       break;
     }
     case V_SgLongIntVal: {
       SgLongIntVal* v_exp = isSgLongIntVal(expr);
-      output = output + v_exp->get_value() << "L";
+      output = output + to_string(v_exp->get_value()) << "L";
       break;
     }
     case V_SgFloatVal: {
       SgFloatVal* v_exp = isSgFloatVal(expr);
-      output = output + v_exp->get_value() << "F";
+      output = output + to_string(v_exp->get_value()) << "F";
       break;
     }
     case V_SgDoubleVal: {
       SgDoubleVal* v_exp = isSgDoubleVal(expr);
-      output = output + v_exp->get_value();
+      output = output + to_string(v_exp->get_value());
       break;
     }
     case V_SgAssignInitializer: {
@@ -222,7 +222,7 @@ string printExpression(SgExpression* expr) {
       break;
     }
     default:
-      output = output + "[UNHANDLED examineExpression (" << expr->class_name() << ")] " + expr->unparseToString();
+      output = output + "[UNHANDLED examineExpression (" + expr->class_name() << ")] " + expr->unparseToString();
   }
   return output;
 }
