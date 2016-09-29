@@ -253,8 +253,35 @@ string printVariableDeclaration(SgVariableDeclaration* decl) {
 string printExpression(SgExpression* expr) {
   string output = "";
   switch(expr->variantT()) {
-    case V_SgBinaryOp:
-         V_SgAssignOp: {
+    case V_SgAddOp:
+    case V_SgAndOp:
+    case V_SgAssignOp:
+    case V_SgBitAndOp:
+    case V_SgBitOrOp:
+    case V_SgBitXorOp:
+    case V_SgAndAssignOp:
+    case V_SgDivAssignOp:
+    case V_SgIorAssignOp:
+    case V_SgLshiftAssignOp:
+    case V_SgMinusAssignOp:
+    case V_SgModAssignOp:
+    case V_SgMultAssignOp:
+    case V_SgPlusAssignOp:
+    case V_SgRshiftAssignOp:
+    case V_SgXorAssignOp:
+    case V_SgDivideOp:
+    case V_SgEqualityOp:
+    case V_SgGreaterOrEqualOp:
+    case V_SgGreaterThanOp:
+    case V_SgLessOrEqualOp:
+    case V_SgLessThanOp:
+    case V_SgLshiftOp:
+    case V_SgModOp:
+    case V_SgMultiplyOp:
+    case V_SgNotEqualOp:
+    case V_SgOrOp:
+    case V_SgRshiftOp:
+    case V_SgSubtractOp: {
       SgBinaryOp* bi_expr = isSgBinaryOp(expr);
       output = output + printBinaryOp(bi_expr);
       break;
