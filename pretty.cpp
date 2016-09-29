@@ -18,8 +18,10 @@ string printType(SgType* type) {
       return "float";
     case V_SgTypeDouble:
       return "double";
-    case V_SgArrayType:
-      return type->get_base_type() + "[" + printExpression(type->get_index()) + "]";
+    case V_SgArrayType: {
+      SgArrayType* a_type = isSgArrayType(type);
+      return a_type->get_base_type() + "[" + printExpression(a_type->get_index()) + "]";
+    }
     default:
       return "[UNHANDLED printType " + type->class_name() + "] " + type->unparseToString();
   }
