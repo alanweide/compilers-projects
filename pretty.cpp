@@ -118,7 +118,7 @@ string printStatement(SgStatement* stmt) {
         output = output + ";\n";
       }
       default:
-        output = output + "[UNHANDLED examineStatement] " + stmt->unparseToString() + "\n";
+        output = output + "[UNHANDLED printStatement] " + stmt->unparseToString() + "\n";
     }
     return output;
 }
@@ -166,7 +166,7 @@ string printScopeStatement(SgScopeStatement* scope, string name) {
       break;
     }
     default:
-      output = output + "[UNHANDLED examineScopeStatement] " + scope->unparseToString();
+      output = output + "[UNHANDLED printScopeStatement] " + scope->unparseToString();
   }
   return output;
 }
@@ -230,7 +230,7 @@ string printExpression(SgExpression* expr) {
       break;
     }
     default:
-      output = output + "[UNHANDLED examineExpression (" + expr->class_name() + ")] " + expr->unparseToString();
+      output = output + "[UNHANDLED printExpression (" + expr->class_name() + ")] " + expr->unparseToString();
   }
   return output;
 }
@@ -280,7 +280,7 @@ string prettyPrint(SgProject* project) {
     // process the symbol table at the global scope; SgGlobal is a
     // subclass of SgScopeStatement
     SgGlobal* global_scope = file->get_globalScope(); 
-    output = output + printScopeStatement(global_scope,"global");
+    // output = output + printScopeStatement(global_scope,"global");
 
     // get the actual statements that are in this global scope
     SgDeclarationStatementPtrList& decl_list = global_scope->get_declarations();
