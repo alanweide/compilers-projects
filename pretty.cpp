@@ -230,7 +230,7 @@ string printExpression(SgExpression* expr) {
       break;
     }
     default:
-      output = output + "[UNHANDLED examineExpression (" + expr->class_name() << ")] " + expr->unparseToString();
+      output = output + "[UNHANDLED examineExpression (" + expr->class_name() + ")] " + expr->unparseToString();
   }
   return output;
 }
