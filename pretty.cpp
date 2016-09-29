@@ -184,22 +184,22 @@ void examineExpression(SgExpression* expr) {
     }
     case V_SgIntVal: {
       SgIntVal* v_exp = isSgIntVal(expr);
-      cout << v_exp->get_valueString();
+      cout << v_exp->get_value();
       break;
     }
     case V_SgLongIntVal: {
       SgLongIntVal* v_exp = isSgLongIntVal(expr);
-      cout << v_exp->get_valueString() << "L";
+      cout << v_exp->get_value() << "L";
       break;
     }
     case V_SgFloatVal: {
       SgFloatVal* v_exp = isSgFloatVal(expr);
-      cout << v_exp->get_valueString() << "F";
+      cout << v_exp->get_value() << "F";
       break;
     }
     case V_SgDoubleVal: {
       SgDoubleVal* v_exp = isSgDoubleVal(expr);
-      cout << v_exp->get_valueString();
+      cout << v_exp->get_value();
       break;
     }
     case V_SgAssignInitializer: {
