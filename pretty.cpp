@@ -117,8 +117,8 @@ string printStatement(SgStatement* stmt) {
         output = output + printExpression(e_stmt->get_expression());
         output = output + ";\n";
       }
-      case V_SgReturnStatement: {
-        SgReturnStatement* r_stmt = isSgReturnStatement(stmt);
+      case V_SgReturnStmt: {
+        SgReturnStmt* r_stmt = isSgReturnStmt(stmt);
         output = output + "return " + printExpression(r_stmt->get_expression());
       }
       default:
