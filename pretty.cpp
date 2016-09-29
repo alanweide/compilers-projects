@@ -1,5 +1,4 @@
 #include <rose.h>
-#include <string.h>
 using namespace std;
 
 string printScopeStatement(SgScopeStatement* scope, string name);
@@ -199,22 +198,30 @@ string printExpression(SgExpression* expr) {
     }
     case V_SgIntVal: {
       SgIntVal* v_exp = isSgIntVal(expr);
-      output = output + to_string(v_exp->get_value());
+      ostringstream convert;
+      convert << v_exp->get_value();
+      output = output + convert.str();
       break;
     }
     case V_SgLongIntVal: {
       SgLongIntVal* v_exp = isSgLongIntVal(expr);
-      output = output + to_string(v_exp->get_value()) << "L";
+      ostringstream convert;
+      convert << v_exp->get_value();
+      output = output + convert.str() + "L";
       break;
     }
     case V_SgFloatVal: {
       SgFloatVal* v_exp = isSgFloatVal(expr);
-      output = output + to_string(v_exp->get_value()) << "F";
+      ostringstream convert;
+      convert << v_exp->get_value();
+      output = output + convert.str() + "F";
       break;
     }
     case V_SgDoubleVal: {
       SgDoubleVal* v_exp = isSgDoubleVal(expr);
-      output = output + to_string(v_exp->get_value());
+      ostringstream convert;
+      convert << v_exp->get_value();
+      output = output + convert.str();
       break;
     }
     case V_SgAssignInitializer: {
