@@ -27,8 +27,6 @@ string printCompoundAssignOperator(SgBinaryOp* op) {
       return " &= ";
     case V_SgDivAssignOp:
       return " /= ";
-    case V_SgIntegerDivideAssignOp:
-      return " /[Integer Division]= ";
     case V_SgIorAssignOp:
       return " |= ";
     case V_SgLshiftAssignOp:
@@ -74,19 +72,17 @@ string printOperatorForBinaryOp(SgBinaryOp* op) {
       return " >= ";
     case V_SgGreaterThanOp:
       return " > ";
-    case V_SgIntegerDivideOp:
-      return " /[IntegerDivide] ";
     case V_SgLessOrEqualOp:
       return " < ";
     case V_SgLessThanOp:
       return " <= ";
-    case V_LshiftOp:
+    case V_SgLshiftOp:
       return " << ";
-    case SgModOp:
+    case V_SgModOp:
       return " % ";
-    case SgMultiplyOp:
+    case V_SgMultiplyOp:
       return " * ";
-    case SgNotEqualOp:
+    case V_SgNotEqualOp:
       return " != ";
     case V_SgOrOp:
       return " || ";
@@ -101,20 +97,20 @@ string printOperatorForBinaryOp(SgBinaryOp* op) {
 
 string printValueExp(SgValueExp* exp) {
   switch(exp->variantT()) {
-    case V_SgInt: {
-      SgIntVal* v_exp = isSgIntValExp(exp);
+    case V_SgIntVal: {
+      SgIntVal* v_exp = isSgIntVal(exp);
       return v_exp->get_valueString();
     }
-    case V_SgLongVal: {
-      SgLongIntValExp* v_exp = isSgLongIntValExp(exp);
+    case V_SgLongIntVal: {
+      SgLongIntValExp* v_exp = isSgLongIntVal(exp);
       return v_exp->get_valueString() + "L";
     }
     case V_SgFloatVal: {
-      SgFloatVal* v_exp = isSgFloatValExp(exp);
+      SgFloatVal* v_exp = isSgFloatVal(exp);
       return v_exp->get_valueString() + "F";
     }
     case V_SgDoubleVal: {
-      SgDoubleVal* v_exp = isSgDoubleValExp(exp);
+      SgDoubleVal* v_exp = isSgDoubleVal(exp);
       return v_exp->get_valueString();
     }
     default:
