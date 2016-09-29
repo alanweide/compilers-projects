@@ -364,7 +364,7 @@ string printExpression(SgExpression* expr) {
       break;
     }
     default:
-      output = "[UNHANDLED printExpression (" + expr->class_name() + ")] " + expr->unparseToString();
+      output = "/**/" + expr->unparseToString();
   }
   return output;
 }
