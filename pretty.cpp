@@ -70,7 +70,7 @@ void examineFunctionDeclaration(SgFunctionDeclaration* decl) {
 }
 
 void examineBasicBlock(SgBasicBlock* block) {
-  SgStatementPtrList& stmt_list = bb->get_statements();
+  SgStatementPtrList& stmt_list = block->get_statements();
   SgStatementPtrList::const_iterator iter;
   for (iter=stmt_list.begin(); iter != stmt_list.end(); iter++) {
     SgStatement* stmt = *iter;
