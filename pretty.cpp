@@ -1,12 +1,12 @@
 #include <rose.h>
 using namespace std;
 
-void examineScopeStatement(SgScopeStatement* scope, string name);
-void examineVariableDeclaration(SgVariableDeclaration* decl);
-void examineFunctionDeclaration(SgFunctionDeclaration* decl);
-void examineBasicBlock(SgBasicBlock* block);
-void examineExpression(SgExpression* expr);
-void examineBinaryOp(SgBinaryOp* expr);
+string printScopeStatement(SgScopeStatement* scope, string name);
+string printVariableDeclaration(SgVariableDeclaration* decl);
+string printFunctionDeclaration(SgFunctionDeclaration* decl);
+string printBasicBlock(SgBasicBlock* block);
+string printExpression(SgExpression* expr);
+string printBinaryOp(SgBinaryOp* expr);
 
 string printType(SgType* type) {
   switch(type->variantT()) {
@@ -18,6 +18,8 @@ string printType(SgType* type) {
       return "float";
     case V_SgTypeDouble:
       return "double";
+    case V_SgArrayType:
+      return type->get_base_type() + "[" + printExpression(type->get_index()) + "]";
     default:
       return "[UNHANDLED printType " + type->class_name() + "] " + type->unparseToString();
   }
@@ -92,57 +94,64 @@ string printOperatorForBinaryOp(SgBinaryOp* op) {
   }
 }
 
-void examineBinaryOp(SgBinaryOp* expr) {
-  examineExpression(expr->get_lhs_operand());
-  cout << printOperatorForBinaryOp(expr);
-  examineExpression(expr->get_rhs_operand());
+string printBinaryOp(SgBinaryOp* expr) {
+  string output = "";
+  output = output + printExpression(expr->get_lhs_operand());
+  output = output + printOperatorForBinaryOp(expr);
+  output = output + printExpression(expr->get_rhs_operand());
+  return output;
 }
 
-void examineStatement(SgStatement* stmt) {
+string printStatement(SgStatement* stmt) {
+  string output = "";
     switch(stmt->variantT()) {
       case V_SgVariableDeclaration: {
         SgVariableDeclaration* d_stmt = isSgVariableDeclaration(stmt);
-        examineVariableDeclaration(d_stmt);
+        output = output + printVariableDeclaration(d_stmt);
         break;
       }
       case V_SgExprStatement: {
         SgExprStatement* e_stmt = isSgExprStatement(stmt);
-        examineExpression(e_stmt->get_expression());
-        cout << ";" << endl;
+        output = output + printExpression(e_stmt->get_expression());
+        output = output + ";\n";
       }
       default:
-        cout << "[UNHANDLED examineStatement] " << stmt->unparseToString() << endl;
+        output = output + "[UNHANDLED examineStatement] " + stmt->unparseToString() + "\n";
     }
+    return output;
 }
 
-void examineBasicBlock(SgBasicBlock* block) {
+string printBasicBlock(SgBasicBlock* block) {
+  string output = "";
   SgStatementPtrList& stmt_list = block->get_statements();
   SgStatementPtrList::const_iterator iter;
-  cout << "{" << endl;
+  output = output + "{\n";
   for (iter=stmt_list.begin(); iter != stmt_list.end(); iter++) {
     SgStatement* stmt = *iter;
-    examineStatement(stmt);
+    output = output + printStatement(stmt);
   }
-  cout << "}" << endl;
+  output = output + "}\n";
+  return output;
 }
 
-void examineScopeStatement(SgScopeStatement* scope, string name) {
+string printScopeStatement(SgScopeStatement* scope, string name) {
+  string output = "";
 
   // Debug info
 
-  SgSymbolTable* symbol_table = scope->get_symbol_table();
-  set<SgNode*> symbol_nodes = symbol_table->get_symbols();
-  set<SgNode*>::const_iterator symbol_iter;
-  int num_vars = 0;
-  for (symbol_iter = symbol_nodes.begin(); 
-       symbol_iter != symbol_nodes.end(); 
-       ++symbol_iter) {
-    SgSymbol* symbol = isSgSymbol(*symbol_iter);
-    // cout << "[Scope " << name << "] Symbol: "<<symbol->get_name().getString()<<endl;
-    if (isSgVariableSymbol(symbol)) {
-      num_vars++;
-    }
-  }
+  // SgSymbolTable* symbol_table = scope->get_symbol_table();
+  // set<SgNode*> symbol_nodes = symbol_table->get_symbols();
+  // set<SgNode*>::const_iterator symbol_iter;
+  // int num_vars = 0;
+  // for (symbol_iter = symbol_nodes.begin(); 
+  //      symbol_iter != symbol_nodes.end(); 
+  //      ++symbol_iter) {
+  //   SgSymbol* symbol = isSgSymbol(*symbol_iter);
+  //   // cout << "[Scope " << name << "] Symbol: "<<symbol->get_name().getString()<<endl;
+  //   if (isSgVariableSymbol(symbol)) {
+  //     num_vars++;
+  //   }
+  // }
   // cout << "[Scope " << name << "] Num symbols: " << symbol_nodes.size() << endl;
   // cout << "[Scope " << name << "] Num variable symbols: " << num_vars << endl;
 
@@ -151,73 +160,78 @@ void examineScopeStatement(SgScopeStatement* scope, string name) {
   switch(scope->variantT()) {
     case V_SgBasicBlock: {
       SgBasicBlock* block = isSgBasicBlock(scope);
-      examineBasicBlock(block);
+      output = output + printBasicBlock(block);
       break;
     }
     default:
-      cout << "[UNHANDLED examineScopeStatement] " << scope->unparseToString();
+      output = output + "[UNHANDLED examineScopeStatement] " << scope->unparseToString();
   }
+  return output;
 }
 
-void examineVariableDeclaration(SgVariableDeclaration* decl) {
+string printVariableDeclaration(SgVariableDeclaration* decl) {
+  string output = "";
   SgInitializedNamePtrList& name_list = decl->get_variables();
   SgInitializedNamePtrList::const_iterator name_iter;
   for (name_iter = name_list.begin(); name_iter != name_list.end(); name_iter++) {
     SgInitializedName* name = *name_iter;
     SgSymbol* symbol = name->get_symbol_from_symbol_table();
-    cout << printType(symbol->get_type()) << " " << symbol->get_name().getString();
+    output = output + printType(symbol->get_type()) + " " + symbol->get_name().getString();
     SgInitializer* init_expr = name->get_initializer();
     if (init_expr) {
-      cout << " = ";
-      examineExpression(init_expr);
+      output = output + " = " + printExpression(init_expr);
     }
-    cout << ";" << endl;
+    output = output + ";\n";
   }
+  return output;
 }
 
-void examineExpression(SgExpression* expr) {
+string printExpression(SgExpression* expr) {
+  string output = "";
   switch(expr->variantT()) {
     case V_SgBinaryOp: {
       SgBinaryOp* bi_expr = isSgBinaryOp(expr);
-      examineBinaryOp(bi_expr);
+      output = output + printBinaryOp(bi_expr);
       break;
     }
     case V_SgIntVal: {
       SgIntVal* v_exp = isSgIntVal(expr);
-      cout << v_exp->get_value();
+      output = output + v_exp->get_value();
       break;
     }
     case V_SgLongIntVal: {
       SgLongIntVal* v_exp = isSgLongIntVal(expr);
-      cout << v_exp->get_value() << "L";
+      output = output + v_exp->get_value() << "L";
       break;
     }
     case V_SgFloatVal: {
       SgFloatVal* v_exp = isSgFloatVal(expr);
-      cout << v_exp->get_value() << "F";
+      output = output + v_exp->get_value() << "F";
       break;
     }
     case V_SgDoubleVal: {
       SgDoubleVal* v_exp = isSgDoubleVal(expr);
-      cout << v_exp->get_value();
+      output = output + v_exp->get_value();
       break;
     }
     case V_SgAssignInitializer: {
       SgAssignInitializer* init_expr = isSgAssignInitializer(expr);
-      examineExpression(init_expr->get_operand());
+      output = output + printExpression(init_expr->get_operand());
       break;
     }
     default:
-      cout << "[UNHANDLED examineExpression (" << expr->class_name() << ")] " << expr->unparseToString();
+      output = output + "[UNHANDLED examineExpression (" << expr->class_name() << ")] " + expr->unparseToString();
   }
+  return output;
 }
 
-void examineFunctionDeclaration(SgFunctionDeclaration* decl) {
+string printFunctionDeclaration(SgFunctionDeclaration* decl) {
+  string output = "";
   SgSymbol* symbol = decl->get_symbol_from_symbol_table();
   SgFunctionDefinition* def = decl->get_definition();
   if (def) {
     SgFunctionDeclaration* f_decl = def->get_declaration();
-    cout << printType(f_decl->get_orig_return_type()) << " " << f_decl->get_name().getString() << "()";
+    output = output + printType(f_decl->get_orig_return_type()) + " " + f_decl->get_name().getString() + "()";
 
     // // TODO: parameter list
     // cout << "(";
@@ -238,13 +252,15 @@ void examineFunctionDeclaration(SgFunctionDeclaration* decl) {
     SgStatementPtrList& stmt_list = body->get_statements();
     // cout << "[Func] - " << stmt_list.size() << " statements" << endl;
     // An SgBasicBlock is a subclass of SgScopeStatement; process the symbol table for this scope
-    examineScopeStatement(body,symbol->get_name().getString());
+    output = output + printScopeStatement(body,symbol->get_name().getString());
   } else if (symbol) {
-    cout << symbol->get_type()->class_name() << " " << symbol->get_name().getString() << "();" << endl;
+    output = output + symbol->get_type()->class_name() + " " + symbol->get_name().getString() + "();\n";
   }
+  return output;
 }
 
 string prettyPrint(SgProject* project) {
+  string output = "";
   SgFilePtrList& file_list = project->get_fileList();
   SgFilePtrList::const_iterator file_iter;
   for (file_iter = file_list.begin(); file_iter != file_list.end(); file_iter++) {
@@ -254,7 +270,7 @@ string prettyPrint(SgProject* project) {
     // process the symbol table at the global scope; SgGlobal is a
     // subclass of SgScopeStatement
     SgGlobal* global_scope = file->get_globalScope(); 
-    examineScopeStatement(global_scope,"global");
+    output = output + printScopeStatement(global_scope,"global");
 
     // get the actual statements that are in this global scope
     SgDeclarationStatementPtrList& decl_list = global_scope->get_declarations();
@@ -262,12 +278,12 @@ string prettyPrint(SgProject* project) {
     for(decl_iter = decl_list.begin(); decl_iter != decl_list.end(); decl_iter++) {
       SgDeclarationStatement* decl = *decl_iter;
       if (isSgFunctionDeclaration(decl)) {
-        examineFunctionDeclaration(isSgFunctionDeclaration(decl));
+        output = output + printFunctionDeclaration(isSgFunctionDeclaration(decl));
       }
       if (isSgVariableDeclaration(decl)) {
-        examineVariableDeclaration(isSgVariableDeclaration(decl));
+        output = output + printVariableDeclaration(isSgVariableDeclaration(decl));
       }
     }
   }
-  return "\nnot implemented yet!\n";
+  return output;
 }
