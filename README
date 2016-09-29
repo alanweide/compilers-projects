@@ -1,0 +1,4 @@
+jflex simpleC.flex
+java -jar java-cup-11b.jar -interface simpleC.cup
+javac -cp .:java-cup-11b-runtime.jar MyLexer.java
+java -cp .:java-cup-11b-runtime.jar MyLexer testCases.c

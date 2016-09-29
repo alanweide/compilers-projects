@@ -1,0 +1,151 @@
+import java_cup.runtime.*;
+
+parser code  {: 
+  public void report_error(String message, Object info) {
+    StringBuffer m = new StringBuffer("Error ");
+
+    if (info instanceof java_cup.runtime.Symbol) 
+      m.append( "("+info.toString()+")" );
+     
+    m.append(" : "+message);
+   
+    System.out.println(m);
+  }
+   
+  public void report_fatal_error(String message, Object info) {
+    report_error(message, info);
+    throw new RuntimeException("Fatal Syntax Error");
+  }
+:};
+
+terminal AUTO, BREAK, CASE, CHAR, CONST, CONTINUE, DEFAULT;
+terminal DO, DOUBLE, ELSE, ENUM, EXTERN, FLOAT, FOR, GOTO;
+terminal IF, INLINE, INT, LONG, REGISTER, RESTRICT, RETURN;
+terminal SHORT, SIGNED, SIZEOF, STATIC, STRUCT, SWITCH;
+terminal TYPEDEF, UNION, UNSIGNED, VOID, VOLATILE, WHILE;
+terminal BOOL, COMPLEX, IMAGINARY;
+terminal LPAREN, RPAREN, LBRACE, RBRACE, LBRACK, RBRACK, SEMICOLON, COMMA;
+terminal DOT, ASSIGN, LT, GT, PLUSPLUS, PLUS, MINUS, DIV, STAR;
+terminal ARROW, MINUSMINUS, BITAND, BITNOT, NOT, REMAINDER;
+terminal BITSHIFTL, BITSHIFTR, LTEQ, GTEQ, EQ, NEQ, XOR, BITOR;
+terminal AND, OR, QUESTION, COLON, ELLIPSIS, STAREQ, DIVEQ;
+terminal REMEQ, PLUSEQ, MINUSEQ, BITSHIFTLEQ, BITSHIFTREQ;
+terminal ANDEQ, XOREQ, OREQ;
+terminal java.lang.Number INTEGER_LITERAL;
+terminal java.lang.Number FLOATING_POINT_LITERAL;
+terminal java.lang.String IDENTIFIER; 
+
+non terminal String program;
+
+non terminal String alldecs, declstmt, declist, decl, decinit;
+non terminal String type, stars, arraydims;
+non terminal String function, stmtlist, statement;
+non terminal String blkstmt, iterstmt, retstmt;
+non terminal String expr, assignop, logorexpr, logandexp;
+non terminal String incorexpr, xorexpr, andexpr, eqexpr, relexpr;
+non terminal String shiftexpr, addexpr, multexpr;
+non terminal String uexpr, postexpr, primexpr, uop;
+
+program   ::= alldecs:d function:f {: RESULT = d + f; :}
+            | function:f {: RESULT = f; :};
+
+alldecs   ::= alldecs:d1 declstmt:d2 {: RESULT = d1 + d2; :}
+            | declstmt:d {: RESULT = d; :};
+declstmt  ::= type:t declist:d SEMICOLON {: RESULT = t + d + ";\n"; :};
+declist   ::= declist:l COMMA decl:d {: RESULT = l + ", " + d; :}
+            | declist:l COMMA decinit:d {: RESULT = l + ", " + d; :}
+            | decl:d {: RESULT = d; :}
+            | decinit:d {: RESULT = d; :};
+decl      ::= stars:s IDENTIFIER:id arraydims:a {: RESULT = s + id + a; :}
+            | stars:s IDENTIFIER:id {: RESULT = s + id; :}
+            | IDENTIFIER:id arraydims:a {: RESULT = id + a; :}
+            | IDENTIFIER:id {: RESULT = id; :};
+decinit   ::= decl:d ASSIGN expr:e {: RESULT = d + " = " + e; :};
+
+type      ::= DOUBLE {: RESULT = "double "; :}
+            | FLOAT {: RESULT = "float "; :}
+            | LONG {: RESULT = "long "; :}
+            | INT {: RESULT = "int "; :};
+stars     ::= stars:s STAR {: RESULT = s + "*"; :}
+            | STAR {: RESULT = "*"; :};
+arraydims ::= arraydims:a LBRACK INTEGER_LITERAL:i RBRACK {: RESULT = a + "[" + i + "]"; :}
+            | arraydims:a LBRACK RBRACK {: RESULT = a + "[]"; :}
+            | LBRACK INTEGER_LITERAL:i RBRACK {: RESULT = "[" + i + "]"; :}
+            | LBRACK RBRACK {: RESULT = "[]"; :};
+
+function  ::= type:t IDENTIFIER:id LPAREN RPAREN blkstmt:b {: RESULT = t + id + "() " + b; :};
+stmtlist  ::= statement:s stmtlist:l {: RESULT = s + l; :}
+            | statement:s {: RESULT = s; :};
+statement ::= declstmt:d {: RESULT = d; :}
+            | expr:e SEMICOLON {: RESULT = e + ";\n"; :}
+            | blkstmt:b {: RESULT = b; :}
+            | iterstmt:i {: RESULT = i; :}
+            | retstmt:r {: RESULT = r; :};
+blkstmt   ::= LBRACE stmtlist:l RBRACE {: RESULT = "{\n" + l + "}\n"; :};
+iterstmt  ::= WHILE LPAREN expr:e RPAREN statement:s {: RESULT = "while (" + e + ") " + s; :}
+            | DO statement:s WHILE LPAREN expr:e RPAREN SEMICOLON {: RESULT = "do " + s + "while (" + e + ");\n"; :}
+            | FOR LPAREN expr:e1 SEMICOLON expr:e2 SEMICOLON expr:e3 RPAREN statement:s {: RESULT = "for (" + e1 + "; " + e2 + "; " + e3 + ") " + s; :};
+retstmt   ::= RETURN SEMICOLON {: RESULT = "return;\n"; :}
+            | RETURN expr:e SEMICOLON {: RESULT = "return " + e + ";\n"; :};
+
+expr      ::= logorexpr:e {: RESULT = e; :}
+            | uexpr:u assignop:o expr:a {: RESULT = u + o + a; :};
+assignop  ::= ASSIGN {: RESULT = " = "; :}
+            | STAREQ {: RESULT = " *= "; :}
+            | DIVEQ {: RESULT = " /= "; :}
+            | REMEQ {: RESULT = " %= "; :}
+            | PLUSEQ {: RESULT = " += "; :}
+            | MINUSEQ {: RESULT = " -= "; :}
+            | BITSHIFTREQ {: RESULT = " >>= "; :}
+            | BITSHIFTLEQ {: RESULT = " <<= "; :}
+            | ANDEQ {: RESULT = " &= "; :}
+            | OREQ {: RESULT = " |= "; :}
+            | XOREQ {: RESULT = " ^= "; :};
+logorexpr ::= logandexp:e {: RESULT = e; :}
+            | logorexpr:o OR logandexp:a {: RESULT = o + " || " + a; :};
+logandexp ::= incorexpr:e {: RESULT = e; :}
+            | logandexp:a AND incorexpr:o {: RESULT = a + " && " + o; :};
+incorexpr ::= xorexpr:e {: RESULT = e; :}
+            | incorexpr:i BITOR xorexpr:x {: RESULT = i + " | " + x; :};
+xorexpr   ::= andexpr:e {: RESULT = e; :}
+            | xorexpr:x XOR andexpr:a {: RESULT = x + " ^ " + a; :};
+andexpr   ::= eqexpr:e {: RESULT = e; :}
+            | andexpr:a BITAND eqexpr:e {: RESULT = a + " & " + e; :};
+eqexpr    ::= relexpr:e {: RESULT = e; :}
+            | eqexpr:e EQ relexpr:r {: RESULT = e + " == " + r; :}
+            | eqexpr:e NEQ relexpr:r {: RESULT = e + " != " + r; :};
+relexpr   ::= shiftexpr:e {: RESULT = e; :}
+            | relexpr:r LT shiftexpr:s {: RESULT = r + " < " + s; :}
+            | relexpr:r GT shiftexpr:s {: RESULT = r + " > " + s; :}
+            | relexpr:r LTEQ shiftexpr:s {: RESULT = r + " <= " + s; :}
+            | relexpr:r GTEQ shiftexpr:s {: RESULT = r + " >= " + s; :};
+shiftexpr ::= addexpr:e {: RESULT = e; :}
+            | shiftexpr:s BITSHIFTR addexpr:a {: RESULT = s + " >> " + a; :}
+            | shiftexpr:s BITSHIFTL addexpr:a {: RESULT = s + " << " + a; :};
+addexpr   ::= multexpr:e {: RESULT = e; :}
+            | addexpr:a PLUS multexpr:m {: RESULT = a + " + " + m; :}
+            | addexpr:a MINUS multexpr:m {: RESULT = a + " - " + m; :};
+multexpr  ::= uexpr:e {: RESULT = e; :}
+            | multexpr:m STAR uexpr:c {: RESULT = m + " * " + c; :}
+            | multexpr:m DIV uexpr:c {: RESULT = m + " / " + c; :}
+            | multexpr:m REMAINDER uexpr:c {: RESULT = m + " % " + c; :};
+uexpr     ::= postexpr:e {: RESULT = e; :}
+            | PLUSPLUS uexpr:e {: RESULT = "++" + e; :}
+            | MINUSMINUS uexpr:e {: RESULT = "--" + e; :}
+            | uop:u uexpr:e {: RESULT = u + e; :}
+            | SIZEOF uexpr:e {: RESULT = "sizeof " + e; :}
+            | SIZEOF LPAREN type:t RPAREN {: RESULT = "sizeof(" + t + ")"; :};
+postexpr  ::= primexpr:e {: RESULT = e; :}
+            | postexpr:p LBRACK expr:e RBRACK {: RESULT = p + "[" + e + "]"; :}
+            | postexpr:e PLUSPLUS {: RESULT = e + "++"; :}
+            | postexpr:e MINUSMINUS {: RESULT = e + "--"; :};
+primexpr  ::= IDENTIFIER:id {: RESULT = id; :}
+            | INTEGER_LITERAL:i {: RESULT = (i instanceof Long) ? i.toString() + "L" : i.toString(); :}
+            | FLOATING_POINT_LITERAL:f {: RESULT = (f instanceof Float) ? f.toString() + "F" : f.toString(); :}
+            | LPAREN expr:e RPAREN {: RESULT = "(" + e + ")"; :};
+uop       ::= BITAND {: RESULT = "&"; :}
+            | STAR {: RESULT = "*"; :}
+            | PLUS {: RESULT = "+"; :}
+            | MINUS {: RESULT = "-"; :}
+            | BITNOT {: RESULT = "~"; :}
+            | NOT {: RESULT = "!"; :};
