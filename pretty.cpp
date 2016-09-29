@@ -7,6 +7,8 @@ string printFunctionDeclaration(SgFunctionDeclaration* decl);
 string printBasicBlock(SgBasicBlock* block);
 string printExpression(SgExpression* expr);
 string printBinaryOp(SgBinaryOp* expr);
+string printForStmt(SgForStmt* for_stmt);
+string printIfStmt(SgIfStmt* stmt);
 
 string printType(SgType* type) {
   switch(type->variantT()) {
@@ -109,24 +111,79 @@ string printStatement(SgStatement* stmt) {
     switch(stmt->variantT()) {
       case V_SgVariableDeclaration: {
         SgVariableDeclaration* d_stmt = isSgVariableDeclaration(stmt);
-        output = output + printVariableDeclaration(d_stmt);
+        output = output + printVariableDeclaration(d_stmt) + ";\n";
         break;
       }
       case V_SgExprStatement: {
         SgExprStatement* e_stmt = isSgExprStatement(stmt);
-        output = output + printExpression(e_stmt->get_expression());
-        output = output + ";\n";
+        output = output + printExpression(e_stmt->get_expression()) + ";\n";
         break;
       }
       case V_SgReturnStmt: {
         SgReturnStmt* r_stmt = isSgReturnStmt(stmt);
-        output = output + "return " + printExpression(r_stmt->get_expression());
+        output = output + "return " + printExpression(r_stmt->get_expression()) + ";\n";
+        break;
+      }
+      case V_SgIfStmt: {
+        SgIfStmt* i_stmt = isSgIfStmt(stmt);
+        output = output + printIfStmt(i_stmt);
+        breka;
+      }
+      case V_SgWhileStmt: {
+        SgWhileStmt* while_stmt = isSgWhileStmt(stmt);
+        SgExprStatement* the_test = isSgExprStatement(while_stmt->get_condition());
+        SgStatement* the_body = while_stmt->get_body();
+        output = output + "while(" + printStatement(the_test) + ")\n" + printStatement(the_body);
+        break;
+      }
+      case V_SgDoWhileStmt: {
+        SgWhileStmt* while_stmt = isSgWhileStmt(stmt);
+        SgExprStatement* the_test = isSgExprStatement(while_stmt->get_condition());
+        SgStatement* the_body = while_stmt->get_body();
+        output = output + "do\n" + printStatement(the_body) + "while (" + printStatement(the_test) + ");\n";
+        break;
+      }
+      case V_SgForStmt: {
+        SgForStmt* for_stmt = isSgForStmt(stmt);
+        output = output + printForStmt(for_stmt);
+        break;
+      }
+      case V_SgBasicBlock: {
+        SgBasicBlock* block = isSgBasicBlock(stmt);
+        output = output + printScopeStatement(block);
         break;
       }
       default:
-        output = output + "[UNHANDLED printStatement] " + stmt->unparseToString();
+        output = output + "[UNHANDLED printStatement] " + stmt->unparseToString() + ";\n";
     }
-    return output + ";\n";
+    return output;
+}
+
+string printForStmt(SgForStmt* for_stmt) {
+  string output = "";
+  SgForInitStatement* init_stmt = for_stmt->get_for_init_stmt();
+  SgStatementPtrList& init_stmt_list = init_stmt->get_init_stmt();
+  SgExprStatement* the_init = isSgExprStatement(*init_stmt_list.begin());
+  SgExprStatement* the_test = isSgExprStatement(for_stmt->get_test());
+  SgExpression* the_incr = for_stmt->get_increment();
+  SgStatement* the_body = for_stmt->get_loop_body();
+  output = "for (" + printExpression(the_init->get_expression()) + "; ";
+  output = output + printExpression(the_test->get_expression()) + "; ";
+  output = output + printExpression(the_incr) + ")\n";
+  output = output + printStatement(the_body);
+  return output;
+}
+
+string printIfStmt(SgIfStmt* stmt) {
+  string output = "";
+  SgExprStatement* condition = isSgExprStatement(stmt->get_condition());
+  SgStatement* true_body = isSgStatement(stmt->get_true_body());
+  SgStatement* false_body = isSgStatement(stmt->get_false_body());
+  output = output + "if (" + printStatement(condition) + ")\n" + printStatement(true_body);
+  if (false_body) {
+    output = output + "else\n" + printStatement(false_body);
+  }
+  return output;
 }
 
 string printBasicBlock(SgBasicBlock* block) {
@@ -244,6 +301,38 @@ string printExpression(SgExpression* expr) {
     case V_SgVarRefExp: {
       SgVarRefExp* v_exp = isSgVarRefExp(expr);
       output = output + v_exp->get_symbol()->get_name().getString();
+      break;
+    }
+    case V_SgPntrArrRefExp: {
+      SgPntrArrRefExp* p_exp = isSgPntrArrRefExp(expr);
+      output = output + printExpression(p_exp->get_lhs_operand()) + "[" + printExpression(p_exp->get_rhs_operand()) = "]";
+      break;
+    }
+    case V_SgMinusOp: {
+      SgMinusOp* m_exp = isSgMinusOp(expr);
+      output = "-" + printExpression(m_exp->get_operand());
+      break;
+    }
+    case V_SgUnaryAddOp: {
+      SgUnaryAddOp* a_exp = isSgUnaryAddOp(expr);
+      output + "+" + printExpression(a_exp->get_operand());
+      break;
+    }
+    case V_SgPlusPlusOp: {
+      SgPlusPlusOp* p_exp = isSgPlusPlusOp(expr);
+      if (p_exp->get_mode() == SgUnaryOp::prefix) {
+        output = "++" + printExpression(p_exp->get_operand());
+      } else {
+        output = printExpression(p_exp->get_operand()) + "++";
+      }
+    }
+    case SgMinusMinusOp: {
+            SgMinusMinusOp* p_exp = isSgMinusMinusOp(expr);
+      if (p_exp->get_mode() == SgUnaryOp::prefix) {
+        output = "--" + printExpression(p_exp->get_operand());
+      } else {
+        output = printExpression(p_exp->get_operand()) + "--";
+      }
     }
     default:
       output = output + "[UNHANDLED printExpression (" + expr->class_name() + ")] " + expr->unparseToString();
