@@ -1,6 +1,8 @@
 #include <rose.h>
 using namespace std;
 
+void examineBasicBlock(SgBasicBlock* block);
+
 void examineScopeStatement(SgScopeStatement* scope, string name) {
   SgSymbolTable* symbol_table = scope->get_symbol_table();
   set<SgNode*> symbol_nodes = symbol_table->get_symbols();
