@@ -202,7 +202,7 @@ void examineExpression(SgExpression* expr) {
       cout << printValueExp(val_exp);
     }
     default:
-      cout << "[UNHANDLED examineExpression (" << expr->get_type()->class_name() << ")] " << expr->unparseToString();
+      cout << "[UNHANDLED examineExpression (" << expr->class_name() << ")] " << expr->unparseToString();
   }
 }
 
