@@ -23,7 +23,7 @@ BINARY_FILE	=	mycompiler
 ###########################################################################
 
 ROSE_INSTALL = /class/cse756/rose-0.9.4a
-CXX = g++
+CXX = g++ -std=c++11
 LDFLAGS = -lrose -L$(ROSE_INSTALL)/rose/lib -L$(ROSE_INSTALL)/boost/lib -g -O3 -Wl,-rpath $(ROSE_INSTALL)/rose/lib -Wl,-rpath $(ROSE_INSTALL)/boost/lib
 CXXFLAGS = -I$(ROSE_INSTALL)/rose/include -I$(ROSE_INSTALL)/boost/include/boost-1_37 -g -O3 -Wno-deprecated
 
