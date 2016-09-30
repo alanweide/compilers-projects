@@ -1,13 +1,14 @@
 #include <rose.h>
 using namespace std;
 
-string printScopeStatement(SgScopeStatement* scope);
 string printVariableDeclaration(SgVariableDeclaration* decl);
 string printFunctionDeclaration(SgFunctionDeclaration* decl);
 string printBasicBlock(SgBasicBlock* block);
 string printExpression(SgExpression* expr);
 string printBinaryOp(SgBinaryOp* expr);
 string printForStmt(SgForStatement* for_stmt);
+string printDoWhileStmt(SgDoWhileStmt* dow_stmt);
+string printWhileStmt(SgWhileStmt* while_stmt);
 string printIfStmt(SgIfStmt* stmt);
 
 string printType(SgType* type) {
@@ -136,18 +137,12 @@ string printStatement(SgStatement* stmt) {
       }
       case V_SgWhileStmt: {
         SgWhileStmt* while_stmt = isSgWhileStmt(stmt);
-        SgExprStatement* the_test = isSgExprStatement(while_stmt->get_condition());
-        SgStatement* the_body = while_stmt->get_body();
-        output = output + "while(" + printExpression(the_test->get_expression()) + ")\n";
-        output = output + printStatement(the_body);
+        output = output + printWhileStmt(while_stmt);
         break;
       }
       case V_SgDoWhileStmt: {
         SgDoWhileStmt* while_stmt = isSgDoWhileStmt(stmt);
-        SgExprStatement* the_test = isSgExprStatement(while_stmt->get_condition());
-        SgStatement* the_body = while_stmt->get_body();
-        output = output + "do\n" + printStatement(the_body);
-        output = output + "while (" + printExpression(the_test->get_expression()) + ");\n";
+        output = output + printDoWhileStmt(while_stmt);
         break;
       }
       case V_SgForStatement: {
@@ -157,7 +152,7 @@ string printStatement(SgStatement* stmt) {
       }
       case V_SgBasicBlock: {
         SgBasicBlock* block = isSgBasicBlock(stmt);
-        output = output + printScopeStatement(block);
+        output = output + printBasicBlock(block);
         break;
       }
       default:
@@ -179,6 +174,24 @@ string printForStmt(SgForStatement* for_stmt) {
   output = output + printExpression(the_test->get_expression()) + "; ";
   output = output + printExpression(the_incr) + ")\n";
   output = output + printStatement(the_body);
+  return output;
+}
+
+string printWhileStmt(SgWhileStmt* while_stmt) {
+  string output = "";
+  SgExprStatement* the_test = isSgExprStatement(while_stmt->get_condition());
+  SgStatement* the_body = while_stmt->get_body();
+  output = output + "while(" + printExpression(the_test->get_expression()) + ")\n";
+  output = output + printStatement(the_body);
+  return output;
+}
+
+string printDoWhileStmt(SgDoWhileStmt* dow_stmt) {
+  string output = "";
+  SgExprStatement* the_test = isSgExprStatement(while_stmt->get_condition());
+  SgStatement* the_body = while_stmt->get_body();
+  output = output + "do\n" + printStatement(the_body);
+  output = output + "while (" + printExpression(the_test->get_expression()) + ");\n";
   return output;
 }
 
@@ -205,42 +218,6 @@ string printBasicBlock(SgBasicBlock* block) {
     output = output + printStatement(stmt);
   }
   output = output + "}\n";
-  return output;
-}
-
-string printScopeStatement(SgScopeStatement* scope) {
-  string output = "";
-
-  // Debug info
-
-  // SgSymbolTable* symbol_table = scope->get_symbol_table();
-  // set<SgNode*> symbol_nodes = symbol_table->get_symbols();
-  // set<SgNode*>::const_iterator symbol_iter;
-  // int num_vars = 0;
-  // for (symbol_iter = symbol_nodes.begin(); 
-  //      symbol_iter != symbol_nodes.end(); 
-  //      ++symbol_iter) {
-  //   SgSymbol* symbol = isSgSymbol(*symbol_iter);
-  //   // cout << "[Scope " << name << "] Symbol: "<<symbol->get_name().getString()<<endl;
-  //   if (isSgVariableSymbol(symbol)) {
-  //     num_vars++;
-  //   }
-  // }
-  // cout << "[Scope " << name << "] Num symbols: " << symbol_nodes.size() << endl;
-  // cout << "[Scope " << name << "] Num variable symbols: " << num_vars << endl;
-
-  // Pretty print it
-
-  switch(scope->variantT()) {
-    case V_SgBasicBlock: {
-      SgBasicBlock* block = isSgBasicBlock(scope);
-      output = printBasicBlock(block);
-      break;
-    }
-    default:
-      output = "/*UNHANDLED " + scope->class_name() + "*/\n";// + scope->unparseToString();
-      break;
-  }
   return output;
 }
 
@@ -420,7 +397,7 @@ string printFunctionDeclaration(SgFunctionDeclaration* decl) {
     // cout << "[Func] - " << stmt_list.size() << " statements" << endl;
     // An SgBasicBlock is a subclass of SgScopeStatement; process the symbol table for this scope
     // output = output + printScopeStatement(body,symbol->get_name().getString());
-    output = output + printScopeStatement(body);
+    output = output + printBasicBlock(body);
   } else if (symbol) {
     output = "// Function " + symbol->get_name().getString() + " has no body; assuming a builtin function.\n";
   }
