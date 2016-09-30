@@ -40,7 +40,7 @@ double fft()
       Wr = *coef_real_ptr++;
       Wi = *coef_imag_ptr++;
       k = 0;
-      do {
+      while (k < buttersPerGroup) {
         Ar = *A_real;
         Ai = *A_imag;
         Br = *B_real;
@@ -52,7 +52,12 @@ double fft()
         *A_imag++ = Ai + temp_imag;
         *B_imag++ = Ai - temp_imag;
         k++;
-      } while (k < buttersPerGroup);
+        if (k == 42) {
+          int foo = +k;
+        } else {
+          int bar = -k
+        }
+      }
       A_real += buttersPerGroup;
       A_imag += buttersPerGroup;
       B_real += buttersPerGroup;
