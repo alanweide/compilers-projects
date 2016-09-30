@@ -116,7 +116,7 @@ string printStatement(SgStatement* stmt, string tabString) {
     switch(stmt->variantT()) {
       case V_SgVariableDeclaration: {
         SgVariableDeclaration* d_stmt = isSgVariableDeclaration(stmt);
-        output = output + printVariableDeclaration(d_stmt, tabString + "  ") + ";\n";
+        output = output + printVariableDeclaration(d_stmt, "") + ";\n";
         break;
       }
       case V_SgExprStatement: {
