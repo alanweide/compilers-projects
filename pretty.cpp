@@ -1,14 +1,14 @@
 #include <rose.h>
 using namespace std;
 
-string printScopeStatement(SgScopeStatement* scope);
+string printScopeStatement(SgScopeStatement* scope, string tabString);
 string printVariableDeclaration(SgVariableDeclaration* decl);
-string printFunctionDeclaration(SgFunctionDeclaration* decl);
-string printBasicBlock(SgBasicBlock* block);
+string printFunctionDeclaration(SgFunctionDeclaration* decl, string tabString);
+string printBasicBlock(SgBasicBlock* block, string tabString);
 string printExpression(SgExpression* expr);
 string printBinaryOp(SgBinaryOp* expr);
-string printForStmt(SgForStatement* for_stmt);
-string printIfStmt(SgIfStmt* stmt);
+string printForStmt(SgForStatement* for_stmt, string tabString);
+string printIfStmt(SgIfStmt* stmt, string tabString);
 
 string printType(SgType* type) {
   switch(type->variantT()) {
