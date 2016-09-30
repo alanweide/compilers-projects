@@ -2,7 +2,7 @@
 using namespace std;
 
 string printScopeStatement(SgScopeStatement* scope, string tabString);
-string printVariableDeclaration(SgVariableDeclaration* decl);
+string printVariableDeclaration(SgVariableDeclaration* decl, string tabString);
 string printFunctionDeclaration(SgFunctionDeclaration* decl, string tabString);
 string printBasicBlock(SgBasicBlock* block, string tabString);
 string printExpression(SgExpression* expr);
