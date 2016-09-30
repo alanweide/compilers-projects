@@ -204,7 +204,7 @@ string printBasicBlock(SgBasicBlock* block) {
     SgStatement* stmt = *iter;
     output = output + printStatement(stmt);
   }
-  output = output + tabString + "}\n";
+  output = output + "}\n";
   return output;
 }
 
