@@ -138,14 +138,14 @@ string printStatement(SgStatement* stmt, string tabString) {
         SgWhileStmt* while_stmt = isSgWhileStmt(stmt);
         SgExprStatement* the_test = isSgExprStatement(while_stmt->get_condition());
         SgStatement* the_body = while_stmt->get_body();
-        output = output + "while(" + printExpression(the_test->get_expression()) + ")\n" + tabString + printStatement(the_body, tabString + "  ");
+        output = output + "while(" + printExpression(the_test->get_expression()) + ")\n" + printStatement(the_body, tabString + "  ");
         break;
       }
       case V_SgDoWhileStmt: {
         SgDoWhileStmt* while_stmt = isSgDoWhileStmt(stmt);
         SgExprStatement* the_test = isSgExprStatement(while_stmt->get_condition());
         SgStatement* the_body = while_stmt->get_body();
-        output = output + "do\n" + tabString + printStatement(the_body, tabString + "  ") + "while (" + printExpression(the_test->get_expression()) + ");\n";
+        output = output + "do\n" + printStatement(the_body, tabString + "  ") + tabString + "while (" + printExpression(the_test->get_expression()) + ");\n";
         break;
       }
       case V_SgForStatement: {
@@ -159,7 +159,7 @@ string printStatement(SgStatement* stmt, string tabString) {
         break;
       }
       default:
-        output = output + "/*UNHANDLED " + stmt->class_name() + "*/\n";// + stmt->unparseToString() + ";\n";
+        output = "/*UNHANDLED " + stmt->class_name() + "*/\n";// + stmt->unparseToString() + ";\n";
         break;
     }
     return output;
@@ -176,7 +176,7 @@ string printForStmt(SgForStatement* for_stmt, string tabString) {
   output = output + "for (" + printExpression(the_init->get_expression()) + "; ";
   output = output + printExpression(the_test->get_expression()) + "; ";
   output = output + printExpression(the_incr) + ")\n";
-  output = output + tabString + printStatement(the_body, tabString + "  ");
+  output = output + printStatement(the_body, tabString);
   return output;
 }
 
@@ -186,9 +186,9 @@ string printIfStmt(SgIfStmt* stmt, string tabString) {
   SgStatement* true_body = isSgStatement(stmt->get_true_body());
   SgStatement* false_body = isSgStatement(stmt->get_false_body());
   output = output + "if (" + printExpression(condition->get_expression()) + ")\n";
-  output = output + tabString + printStatement(true_body, tabString + "  ");
+  output = output + printStatement(true_body, tabString);
   if (false_body) {
-    output = output + tabString + "else\n" + tabString + printStatement(false_body, tabString + "  ");
+    output = output + tabString + "else\n" + printStatement(false_body, tabString);
   }
   return output;
 }
@@ -199,14 +199,14 @@ string printBasicBlock(SgBasicBlock* block, string tabString) {
   SgStatementPtrList::const_iterator iter;
   for (iter=stmt_list.begin(); iter != stmt_list.end(); iter++) {
     SgStatement* stmt = *iter;
-    output = output + tabString + printStatement(stmt, tabString + "  ");
+    output = output + printStatement(stmt, tabString + "  ");
   }
   output = output + tabString + "}\n";
   return output;
 }
 
 string printScopeStatement(SgScopeStatement* scope, string tabString) {
-  string output = tabString;
+  string output = "";
 
   // Debug info
 
