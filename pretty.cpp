@@ -1,14 +1,14 @@
 #include <rose.h>
 using namespace std;
 
-string printScopeStatement(SgScopeStatement* scope, string tabString);
-string printVariableDeclaration(SgVariableDeclaration* decl, string tabString);
-string printFunctionDeclaration(SgFunctionDeclaration* decl, string tabString);
-string printBasicBlock(SgBasicBlock* block, string tabString);
+string printScopeStatement(SgScopeStatement* scope);
+string printVariableDeclaration(SgVariableDeclaration* decl);
+string printFunctionDeclaration(SgFunctionDeclaration* decl);
+string printBasicBlock(SgBasicBlock* block);
 string printExpression(SgExpression* expr);
 string printBinaryOp(SgBinaryOp* expr);
-string printForStmt(SgForStatement* for_stmt, string tabString);
-string printIfStmt(SgIfStmt* stmt, string tabString);
+string printForStmt(SgForStatement* for_stmt);
+string printIfStmt(SgIfStmt* stmt);
 
 string printType(SgType* type) {
   switch(type->variantT()) {
@@ -111,12 +111,12 @@ string printBinaryOp(SgBinaryOp* expr) {
   return output;
 }
 
-string printStatement(SgStatement* stmt, string tabString) {
-  string output = tabString;
+string printStatement(SgStatement* stmt) {
+  string output = "";
     switch(stmt->variantT()) {
       case V_SgVariableDeclaration: {
         SgVariableDeclaration* d_stmt = isSgVariableDeclaration(stmt);
-        output = output + printVariableDeclaration(d_stmt, "") + ";\n";
+        output = output + printVariableDeclaration(d_stmt) + ";\n";
         break;
       }
       case V_SgExprStatement: {
@@ -131,31 +131,33 @@ string printStatement(SgStatement* stmt, string tabString) {
       }
       case V_SgIfStmt: {
         SgIfStmt* i_stmt = isSgIfStmt(stmt);
-        output = output + printIfStmt(i_stmt, tabString + "  ");
+        output = output + printIfStmt(i_stmt);
         break;
       }
       case V_SgWhileStmt: {
         SgWhileStmt* while_stmt = isSgWhileStmt(stmt);
         SgExprStatement* the_test = isSgExprStatement(while_stmt->get_condition());
         SgStatement* the_body = while_stmt->get_body();
-        output = output + "while(" + printExpression(the_test->get_expression()) + ")\n" + printStatement(the_body, tabString + "  ");
+        output = output + "while(" + printExpression(the_test->get_expression()) + ")\n";
+        output = output + printStatement(the_body);
         break;
       }
       case V_SgDoWhileStmt: {
         SgDoWhileStmt* while_stmt = isSgDoWhileStmt(stmt);
         SgExprStatement* the_test = isSgExprStatement(while_stmt->get_condition());
         SgStatement* the_body = while_stmt->get_body();
-        output = output + "do\n" + printStatement(the_body, tabString + "  ") + tabString + "while (" + printExpression(the_test->get_expression()) + ");\n";
+        output = output + "do\n" + printStatement(the_body);
+        output = output + "while (" + printExpression(the_test->get_expression()) + ");\n";
         break;
       }
       case V_SgForStatement: {
         SgForStatement* for_stmt = isSgForStatement(stmt);
-        output = output + printForStmt(for_stmt, tabString + "  ");
+        output = output + printForStmt(for_stmt);
         break;
       }
       case V_SgBasicBlock: {
         SgBasicBlock* block = isSgBasicBlock(stmt);
-        output = output + printScopeStatement(block, tabString + "  ");
+        output = output + printScopeStatement(block);
         break;
       }
       default:
@@ -165,8 +167,8 @@ string printStatement(SgStatement* stmt, string tabString) {
     return output;
 }
 
-string printForStmt(SgForStatement* for_stmt, string tabString) {
-  string output = tabString;
+string printForStmt(SgForStatement* for_stmt) {
+  string output = "";
   SgForInitStatement* init_stmt = for_stmt->get_for_init_stmt();
   SgStatementPtrList& init_stmt_list = init_stmt->get_init_stmt();
   SgExprStatement* the_init = isSgExprStatement(*init_stmt_list.begin());
@@ -176,53 +178,37 @@ string printForStmt(SgForStatement* for_stmt, string tabString) {
   output = output + "for (" + printExpression(the_init->get_expression()) + "; ";
   output = output + printExpression(the_test->get_expression()) + "; ";
   output = output + printExpression(the_incr) + ")\n";
-  if (isSgBasicBlock(the_body)) {
-    output = output + printStatement(the_body, tabString);
-  } else {
-    output = output + printStatement(the_body, tabString + "  ");
-  }
+  output = output + printStatement(the_body);
   return output;
 }
 
-string printIfStmt(SgIfStmt* stmt, string tabString) {
-  string output = tabString;
+string printIfStmt(SgIfStmt* stmt) {
+  string output = "";
   SgExprStatement* condition = isSgExprStatement(stmt->get_conditional());
   SgStatement* true_body = isSgStatement(stmt->get_true_body());
   SgStatement* false_body = isSgStatement(stmt->get_false_body());
   output = output + "if (" + printExpression(condition->get_expression()) + ")\n";
-  if (isSgBasicBlock(true_body)) {
-    output = output + printStatement(true_body, tabString);
-  } else {
-    output = output + printStatement(true_body, tabString + "  ");
-  }
+  output = output + printStatement(true_body);
   if (false_body) {
-    output = output + tabString + "else\n";
-    if (isSgBasicBlock(false_body)) {
-      output = output + printStatement(false_body, tabString);
-    } else {
-      output = output + printStatement(false_body, tabString + "  ");
-    }
+    output = output + "else\n";
+    output = output + printStatement(false_body);
   }
   return output;
 }
 
-string printBasicBlock(SgBasicBlock* block, string tabString) {
-  string output = tabString + "{\n";
+string printBasicBlock(SgBasicBlock* block) {
+  string output = "{\n";
   SgStatementPtrList& stmt_list = block->get_statements();
   SgStatementPtrList::const_iterator iter;
   for (iter=stmt_list.begin(); iter != stmt_list.end(); iter++) {
     SgStatement* stmt = *iter;
-    if (isSgBasicBlock(stmt)) {
-      output = output + printStatement(stmt, tabString);
-    } else {
-      output = output + printStatement(stmt, tabString + "  ");
-    }
+    output = output + printStatement(stmt);
   }
   output = output + tabString + "}\n";
   return output;
 }
 
-string printScopeStatement(SgScopeStatement* scope, string tabString) {
+string printScopeStatement(SgScopeStatement* scope) {
   string output = "";
 
   // Debug info
@@ -248,7 +234,7 @@ string printScopeStatement(SgScopeStatement* scope, string tabString) {
   switch(scope->variantT()) {
     case V_SgBasicBlock: {
       SgBasicBlock* block = isSgBasicBlock(scope);
-      output = printBasicBlock(block, tabString);
+      output = printBasicBlock(block);
       break;
     }
     default:
@@ -258,8 +244,8 @@ string printScopeStatement(SgScopeStatement* scope, string tabString) {
   return output;
 }
 
-string printVariableDeclaration(SgVariableDeclaration* decl, string tabString) {
-  string output = tabString;
+string printVariableDeclaration(SgVariableDeclaration* decl) {
+  string output = "";
   SgInitializedNamePtrList& name_list = decl->get_variables();
   SgInitializedNamePtrList::const_iterator name_iter;
   for (name_iter = name_list.begin(); name_iter != name_list.end(); name_iter++) {
@@ -434,7 +420,7 @@ string printFunctionDeclaration(SgFunctionDeclaration* decl) {
     // cout << "[Func] - " << stmt_list.size() << " statements" << endl;
     // An SgBasicBlock is a subclass of SgScopeStatement; process the symbol table for this scope
     // output = output + printScopeStatement(body,symbol->get_name().getString());
-    output = output + printScopeStatement(body, "");
+    output = output + printScopeStatement(body);
   } else if (symbol) {
     output = "// Function " + symbol->get_name().getString() + " has no body; assuming a builtin function.\n";
   }
@@ -463,7 +449,7 @@ string prettyPrint(SgProject* project) {
         output = output + printFunctionDeclaration(isSgFunctionDeclaration(decl));
       }
       if (isSgVariableDeclaration(decl)) {
-        output = output + printVariableDeclaration(isSgVariableDeclaration(decl), "") + ";\n";
+        output = output + printVariableDeclaration(isSgVariableDeclaration(decl)) + ";\n";
       }
     }
   }
