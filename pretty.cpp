@@ -176,7 +176,11 @@ string printForStmt(SgForStatement* for_stmt, string tabString) {
   output = output + "for (" + printExpression(the_init->get_expression()) + "; ";
   output = output + printExpression(the_test->get_expression()) + "; ";
   output = output + printExpression(the_incr) + ")\n";
-  output = output + printStatement(the_body, tabString);
+  if (isSgBasicBlock(the_body)) {
+    output = output + printStatement(the_body, tabString);
+  } else {
+    output = output + printStatement(the_body, tabString + "  ");
+  }
   return output;
 }
 
@@ -186,9 +190,18 @@ string printIfStmt(SgIfStmt* stmt, string tabString) {
   SgStatement* true_body = isSgStatement(stmt->get_true_body());
   SgStatement* false_body = isSgStatement(stmt->get_false_body());
   output = output + "if (" + printExpression(condition->get_expression()) + ")\n";
-  output = output + printStatement(true_body, tabString);
+  if (isSgBasicBlock(true_body)) {
+    output = output + printStatement(true_body, tabString);
+  } else {
+    output = output + printStatement(true_body, tabString + "  ");
+  }
   if (false_body) {
-    output = output + tabString + "else\n" + printStatement(false_body, tabString);
+    output = output + tabString + "else\n";
+    if (isSgBasicBlock(false_body)) {
+      output = output + printStatement(false_body, tabString);
+    } else {
+      output = output + printStatement(false_body, tabString + "  ");
+    }
   }
   return output;
 }
@@ -199,7 +212,11 @@ string printBasicBlock(SgBasicBlock* block, string tabString) {
   SgStatementPtrList::const_iterator iter;
   for (iter=stmt_list.begin(); iter != stmt_list.end(); iter++) {
     SgStatement* stmt = *iter;
-    output = output + printStatement(stmt, tabString + "  ");
+    if (isSgBasicBlock(stmt)) {
+      output = output + printStatement(stmt, tabString);
+    } else {
+      output = output + printStatement(stmt, tabString + "  ");
+    }
   }
   output = output + tabString + "}\n";
   return output;
