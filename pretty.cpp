@@ -370,9 +370,9 @@ string printFunctionDeclaration(SgFunctionDeclaration* decl) {
     SgStatementPtrList& stmt_list = body->get_statements();
     output = output + printBasicBlock(body);
   } else if (symbol) {
-    output = "// Function " + symbol->get_name().getString() + " has no body; assuming a builtin or included function.\n";
+    // output = "// Function " + symbol->get_name().getString() + " has no body; assuming a builtin or included function.\n";
   } else {
-    output = "// Function has no symbol!\n";
+    // output = "// Function has no symbol!\n";
   }
   return output;
 }
