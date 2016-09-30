@@ -188,8 +188,8 @@ string printWhileStmt(SgWhileStmt* while_stmt) {
 
 string printDoWhileStmt(SgDoWhileStmt* dow_stmt) {
   string output = "";
-  SgExprStatement* the_test = isSgExprStatement(while_stmt->get_condition());
-  SgStatement* the_body = while_stmt->get_body();
+  SgExprStatement* the_test = isSgExprStatement(dow_stmt->get_condition());
+  SgStatement* the_body = dow_stmt->get_body();
   output = output + "do\n" + printStatement(the_body);
   output = output + "while (" + printExpression(the_test->get_expression()) + ");\n";
   return output;
