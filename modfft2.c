@@ -55,7 +55,7 @@ double fft()
         if (k == 42) {
           int foo = +k;
         } else {
-          int bar = -k
+          int bar = -k;
         }
       }
       A_real += buttersPerGroup;
