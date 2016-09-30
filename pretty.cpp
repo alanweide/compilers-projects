@@ -419,7 +419,7 @@ string printFunctionDeclaration(SgFunctionDeclaration* decl) {
     // output = output + printScopeStatement(body,symbol->get_name().getString());
     output = output + printScopeStatement(body);
   } else if (symbol) {
-    output = printType(def->get_orig_return_type()) + " " + symbol->get_name().getString() + "();\n";
+    output = "// Function " symbol->get_name().getString() + " has no body; assuming a builtin function.\n";
   }
   return output;
 }
