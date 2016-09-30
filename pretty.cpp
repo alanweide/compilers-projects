@@ -192,7 +192,7 @@ string printIfStmt(SgIfStmt* stmt, string tabString) {
   return output;
 }
 
-string printBasicBlock(SgBasicBlock* block) {
+string printBasicBlock(SgBasicBlock* block, string tabString) {
   string output = tabString + "{\n";
   SgStatementPtrList& stmt_list = block->get_statements();
   SgStatementPtrList::const_iterator iter;
