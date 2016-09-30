@@ -199,7 +199,7 @@ string printBasicBlock(SgBasicBlock* block, string tabString) {
   SgStatementPtrList::const_iterator iter;
   for (iter=stmt_list.begin(); iter != stmt_list.end(); iter++) {
     SgStatement* stmt = *iter;
-    output = output + printStatement(stmt, tabString + "  ");
+    output = output + tabString + printStatement(stmt, tabString + "  ");
   }
   output = output + tabString + "}\n";
   return output;
