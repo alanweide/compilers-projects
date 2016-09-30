@@ -116,50 +116,50 @@ string printStatement(SgStatement* stmt, string tabString) {
     switch(stmt->variantT()) {
       case V_SgVariableDeclaration: {
         SgVariableDeclaration* d_stmt = isSgVariableDeclaration(stmt);
-        output = printVariableDeclaration(d_stmt, tabString + "\t") + ";\n";
+        output = output + printVariableDeclaration(d_stmt, tabString + "  ") + ";\n";
         break;
       }
       case V_SgExprStatement: {
         SgExprStatement* e_stmt = isSgExprStatement(stmt);
-        output = printExpression(e_stmt->get_expression()) + ";\n";
+        output = output + printExpression(e_stmt->get_expression()) + ";\n";
         break;
       }
       case V_SgReturnStmt: {
         SgReturnStmt* r_stmt = isSgReturnStmt(stmt);
-        output = "return " + printExpression(r_stmt->get_expression()) + ";\n";
+        output = output + "return " + printExpression(r_stmt->get_expression()) + ";\n";
         break;
       }
       case V_SgIfStmt: {
         SgIfStmt* i_stmt = isSgIfStmt(stmt);
-        output = printIfStmt(i_stmt, tabString + "\t");
+        output = output + printIfStmt(i_stmt, tabString + "  ");
         break;
       }
       case V_SgWhileStmt: {
         SgWhileStmt* while_stmt = isSgWhileStmt(stmt);
         SgExprStatement* the_test = isSgExprStatement(while_stmt->get_condition());
         SgStatement* the_body = while_stmt->get_body();
-        output = "while(" + printExpression(the_test->get_expression()) + ")\n" + printStatement(the_body, tabString + "\t");
+        output = output + "while(" + printExpression(the_test->get_expression()) + ")\n" + tabString + printStatement(the_body, tabString + "  ");
         break;
       }
       case V_SgDoWhileStmt: {
         SgDoWhileStmt* while_stmt = isSgDoWhileStmt(stmt);
         SgExprStatement* the_test = isSgExprStatement(while_stmt->get_condition());
         SgStatement* the_body = while_stmt->get_body();
-        output = "do\n" + printStatement(the_body, tabString + "\t") + "while (" + printExpression(the_test->get_expression()) + ");\n";
+        output = output + "do\n" + tabString + printStatement(the_body, tabString + "  ") + "while (" + printExpression(the_test->get_expression()) + ");\n";
         break;
       }
       case V_SgForStatement: {
         SgForStatement* for_stmt = isSgForStatement(stmt);
-        output = printForStmt(for_stmt, tabString + "\t");
+        output = output + printForStmt(for_stmt, tabString + "  ");
         break;
       }
       case V_SgBasicBlock: {
         SgBasicBlock* block = isSgBasicBlock(stmt);
-        output = printScopeStatement(block, tabString + "\t");
+        output = output + printScopeStatement(block, tabString + "  ");
         break;
       }
       default:
-        output = "/*UNHANDLED " + stmt->class_name() + "*/\n";// + stmt->unparseToString() + ";\n";
+        output = output + "/*UNHANDLED " + stmt->class_name() + "*/\n";// + stmt->unparseToString() + ";\n";
         break;
     }
     return output;
@@ -173,10 +173,10 @@ string printForStmt(SgForStatement* for_stmt, string tabString) {
   SgExprStatement* the_test = isSgExprStatement(for_stmt->get_test());
   SgExpression* the_incr = for_stmt->get_increment();
   SgStatement* the_body = for_stmt->get_loop_body();
-  output = "for (" + printExpression(the_init->get_expression()) + "; ";
+  output = output + "for (" + printExpression(the_init->get_expression()) + "; ";
   output = output + printExpression(the_test->get_expression()) + "; ";
   output = output + printExpression(the_incr) + ")\n";
-  output = output + printStatement(the_body, tabString + "\t");
+  output = output + tabString + printStatement(the_body, tabString + "  ");
   return output;
 }
 
@@ -185,9 +185,10 @@ string printIfStmt(SgIfStmt* stmt, string tabString) {
   SgExprStatement* condition = isSgExprStatement(stmt->get_conditional());
   SgStatement* true_body = isSgStatement(stmt->get_true_body());
   SgStatement* false_body = isSgStatement(stmt->get_false_body());
-  output = "if (" + printExpression(condition->get_expression()) + ")\n" + printStatement(true_body, tabString + "\t");
+  output = output + "if (" + printExpression(condition->get_expression()) + ")\n";
+  output = output + tabString + printStatement(true_body, tabString + "  ");
   if (false_body) {
-    output = output + "else\n" + printStatement(false_body, tabString + "\t");
+    output = output + tabString + "else\n" + tabString + printStatement(false_body, tabString + "  ");
   }
   return output;
 }
@@ -198,7 +199,7 @@ string printBasicBlock(SgBasicBlock* block, string tabString) {
   SgStatementPtrList::const_iterator iter;
   for (iter=stmt_list.begin(); iter != stmt_list.end(); iter++) {
     SgStatement* stmt = *iter;
-    output = output + printStatement(stmt, tabString + "\t");
+    output = output + printStatement(stmt, tabString + "  ");
   }
   output = output + tabString + "}\n";
   return output;
@@ -394,7 +395,7 @@ string printFunctionDeclaration(SgFunctionDeclaration* decl) {
   SgFunctionDefinition* def = decl->get_definition();
   if (def) {
     SgFunctionDeclaration* f_decl = def->get_declaration();
-    output = printType(f_decl->get_orig_return_type()) + " " + f_decl->get_name().getString() + "()";
+    output = printType(f_decl->get_orig_return_type()) + " " + f_decl->get_name().getString() + "()\n";
 
     // // TODO: parameter list
     // cout << "(";
@@ -416,7 +417,7 @@ string printFunctionDeclaration(SgFunctionDeclaration* decl) {
     // cout << "[Func] - " << stmt_list.size() << " statements" << endl;
     // An SgBasicBlock is a subclass of SgScopeStatement; process the symbol table for this scope
     // output = output + printScopeStatement(body,symbol->get_name().getString());
-    output = output + printScopeStatement(body, "\t");
+    output = output + printScopeStatement(body, "");
   } else if (symbol) {
     output = "// Function " + symbol->get_name().getString() + " has no body; assuming a builtin function.\n";
   }
