@@ -1,3 +1,6 @@
+#include <rose.h>
+using namespace std;
+
 string printExpression(SgExpression* expr);
 string printType(SgType* type);
 string printOperatorForBinaryOp(SgBinaryOp* op);

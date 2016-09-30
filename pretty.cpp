@@ -1,6 +1,4 @@
-#include <rose.h>
 #include "pretty.h"
-using namespace std;
 
 string printExpression(SgExpression* expr) {
   string output = "";
