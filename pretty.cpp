@@ -1,15 +1,138 @@
 #include <rose.h>
+#include "pretty.h"
 using namespace std;
 
-string printVariableDeclaration(SgVariableDeclaration* decl);
-string printFunctionDeclaration(SgFunctionDeclaration* decl);
-string printBasicBlock(SgBasicBlock* block);
-string printExpression(SgExpression* expr);
-string printBinaryOp(SgBinaryOp* expr);
-string printForStmt(SgForStatement* for_stmt);
-string printDoWhileStmt(SgDoWhileStmt* dow_stmt);
-string printWhileStmt(SgWhileStmt* while_stmt);
-string printIfStmt(SgIfStmt* stmt);
+string printExpression(SgExpression* expr) {
+  string output = "";
+  if (expr->get_need_paren()) {
+    output = output + "(";
+  }
+  switch(expr->variantT()) {
+    case V_SgAddOp:
+    case V_SgAndOp:
+    case V_SgAssignOp:
+    case V_SgBitAndOp:
+    case V_SgBitOrOp:
+    case V_SgBitXorOp:
+    case V_SgAndAssignOp:
+    case V_SgDivAssignOp:
+    case V_SgIorAssignOp:
+    case V_SgLshiftAssignOp:
+    case V_SgMinusAssignOp:
+    case V_SgModAssignOp:
+    case V_SgMultAssignOp:
+    case V_SgPlusAssignOp:
+    case V_SgRshiftAssignOp:
+    case V_SgXorAssignOp:
+    case V_SgDivideOp:
+    case V_SgEqualityOp:
+    case V_SgGreaterOrEqualOp:
+    case V_SgGreaterThanOp:
+    case V_SgLessOrEqualOp:
+    case V_SgLessThanOp:
+    case V_SgLshiftOp:
+    case V_SgModOp:
+    case V_SgMultiplyOp:
+    case V_SgNotEqualOp:
+    case V_SgOrOp:
+    case V_SgRshiftOp:
+    case V_SgSubtractOp: {
+      SgBinaryOp* bi_expr = isSgBinaryOp(expr);
+      output = output + printBinaryOp(bi_expr);
+      break;
+    }
+    case V_SgIntVal: {
+      SgIntVal* v_exp = isSgIntVal(expr);
+      ostringstream convert;
+      convert << v_exp->get_value();
+      output = output + convert.str();
+      break;
+    }
+    case V_SgLongIntVal: {
+      SgLongIntVal* v_exp = isSgLongIntVal(expr);
+      ostringstream convert;
+      convert << v_exp->get_value();
+      output = output + convert.str() + "L";
+      break;
+    }
+    case V_SgUnsignedLongVal: {
+      SgUnsignedLongVal* v_exp = isSgUnsignedLongVal(expr);
+      ostringstream convert;
+      convert << v_exp->get_value();
+      output = output + convert.str() + "UL";
+      break;
+    }
+    case V_SgFloatVal: {
+      SgFloatVal* v_exp = isSgFloatVal(expr);
+      ostringstream convert;
+      convert << v_exp->get_value();
+      output = output + convert.str() + "F";
+      break;
+    }
+    case V_SgDoubleVal: {
+      SgDoubleVal* v_exp = isSgDoubleVal(expr);
+      ostringstream convert;
+      convert << v_exp->get_value();
+      output = output + convert.str();
+      break;
+    }
+    case V_SgAssignInitializer: {
+      SgAssignInitializer* init_expr = isSgAssignInitializer(expr);
+      output = output + printExpression(init_expr->get_operand());
+      break;
+    }
+    case V_SgVarRefExp: {
+      SgVarRefExp* v_exp = isSgVarRefExp(expr);
+      output = output + v_exp->get_symbol()->get_name().getString();
+      break;
+    }
+    case V_SgPntrArrRefExp: {
+      SgPntrArrRefExp* p_exp = isSgPntrArrRefExp(expr);
+      output = output + printExpression(p_exp->get_lhs_operand()) + "[" + printExpression(p_exp->get_rhs_operand()) + "]";
+      break;
+    }
+    case V_SgPointerDerefExp: {
+      SgPointerDerefExp* p_exp = isSgPointerDerefExp(expr);
+      output = output + "*" + printExpression(p_exp->get_operand());
+      break;
+    }
+    case V_SgMinusOp: {
+      SgMinusOp* m_exp = isSgMinusOp(expr);
+      output = output + "-" + printExpression(m_exp->get_operand());
+      break;
+    }
+    case V_SgUnaryAddOp: {
+      SgUnaryAddOp* a_exp = isSgUnaryAddOp(expr);
+      output = output + "+" + printExpression(a_exp->get_operand());
+      break;
+    }
+    case V_SgPlusPlusOp: {
+      SgPlusPlusOp* p_exp = isSgPlusPlusOp(expr);
+      if (p_exp->get_mode() == SgUnaryOp::prefix) {
+        output = output + "++" + printExpression(p_exp->get_operand());
+      } else {
+        output = output + printExpression(p_exp->get_operand()) + "++";
+      }
+      break;
+    }
+    case V_SgMinusMinusOp: {
+      SgMinusMinusOp* p_exp = isSgMinusMinusOp(expr);
+      if (p_exp->get_mode() == SgUnaryOp::prefix) {
+        output = output + "--" + printExpression(p_exp->get_operand());
+      } else {
+        output = output + printExpression(p_exp->get_operand()) + "--";
+      }
+      break;
+    }
+    default:
+      output = output + "/*UNHANDLED " + expr->class_name() + "*/\n";// + expr->unparseToString();
+      break;
+  }
+  if (expr->get_need_paren()) {
+    output = output + ")";
+  }
+  return output;
+}
 
 string printType(SgType* type) {
   switch(type->variantT()) {
@@ -237,138 +360,6 @@ string printVariableDeclaration(SgVariableDeclaration* decl) {
   return output;
 }
 
-string printExpression(SgExpression* expr) {
-  string output = "";
-  if (expr->get_need_paren()) {
-    output = output + "(";
-  }
-  switch(expr->variantT()) {
-    case V_SgAddOp:
-    case V_SgAndOp:
-    case V_SgAssignOp:
-    case V_SgBitAndOp:
-    case V_SgBitOrOp:
-    case V_SgBitXorOp:
-    case V_SgAndAssignOp:
-    case V_SgDivAssignOp:
-    case V_SgIorAssignOp:
-    case V_SgLshiftAssignOp:
-    case V_SgMinusAssignOp:
-    case V_SgModAssignOp:
-    case V_SgMultAssignOp:
-    case V_SgPlusAssignOp:
-    case V_SgRshiftAssignOp:
-    case V_SgXorAssignOp:
-    case V_SgDivideOp:
-    case V_SgEqualityOp:
-    case V_SgGreaterOrEqualOp:
-    case V_SgGreaterThanOp:
-    case V_SgLessOrEqualOp:
-    case V_SgLessThanOp:
-    case V_SgLshiftOp:
-    case V_SgModOp:
-    case V_SgMultiplyOp:
-    case V_SgNotEqualOp:
-    case V_SgOrOp:
-    case V_SgRshiftOp:
-    case V_SgSubtractOp: {
-      SgBinaryOp* bi_expr = isSgBinaryOp(expr);
-      output = output + printBinaryOp(bi_expr);
-      break;
-    }
-    case V_SgIntVal: {
-      SgIntVal* v_exp = isSgIntVal(expr);
-      ostringstream convert;
-      convert << v_exp->get_value();
-      output = output + convert.str();
-      break;
-    }
-    case V_SgLongIntVal: {
-      SgLongIntVal* v_exp = isSgLongIntVal(expr);
-      ostringstream convert;
-      convert << v_exp->get_value();
-      output = output + convert.str() + "L";
-      break;
-    }
-    case V_SgUnsignedLongVal: {
-      SgUnsignedLongVal* v_exp = isSgUnsignedLongVal(expr);
-      ostringstream convert;
-      convert << v_exp->get_value();
-      output = output + convert.str() + "UL";
-      break;
-    }
-    case V_SgFloatVal: {
-      SgFloatVal* v_exp = isSgFloatVal(expr);
-      ostringstream convert;
-      convert << v_exp->get_value();
-      output = output + convert.str() + "F";
-      break;
-    }
-    case V_SgDoubleVal: {
-      SgDoubleVal* v_exp = isSgDoubleVal(expr);
-      ostringstream convert;
-      convert << v_exp->get_value();
-      output = output + convert.str();
-      break;
-    }
-    case V_SgAssignInitializer: {
-      SgAssignInitializer* init_expr = isSgAssignInitializer(expr);
-      output = output + printExpression(init_expr->get_operand());
-      break;
-    }
-    case V_SgVarRefExp: {
-      SgVarRefExp* v_exp = isSgVarRefExp(expr);
-      output = output + v_exp->get_symbol()->get_name().getString();
-      break;
-    }
-    case V_SgPntrArrRefExp: {
-      SgPntrArrRefExp* p_exp = isSgPntrArrRefExp(expr);
-      output = output + printExpression(p_exp->get_lhs_operand()) + "[" + printExpression(p_exp->get_rhs_operand()) + "]";
-      break;
-    }
-    case V_SgPointerDerefExp: {
-      SgPointerDerefExp* p_exp = isSgPointerDerefExp(expr);
-      output = output + "*" + printExpression(p_exp->get_operand());
-      break;
-    }
-    case V_SgMinusOp: {
-      SgMinusOp* m_exp = isSgMinusOp(expr);
-      output = output + "-" + printExpression(m_exp->get_operand());
-      break;
-    }
-    case V_SgUnaryAddOp: {
-      SgUnaryAddOp* a_exp = isSgUnaryAddOp(expr);
-      output = output + "+" + printExpression(a_exp->get_operand());
-      break;
-    }
-    case V_SgPlusPlusOp: {
-      SgPlusPlusOp* p_exp = isSgPlusPlusOp(expr);
-      if (p_exp->get_mode() == SgUnaryOp::prefix) {
-        output = output + "++" + printExpression(p_exp->get_operand());
-      } else {
-        output = output + printExpression(p_exp->get_operand()) + "++";
-      }
-      break;
-    }
-    case V_SgMinusMinusOp: {
-      SgMinusMinusOp* p_exp = isSgMinusMinusOp(expr);
-      if (p_exp->get_mode() == SgUnaryOp::prefix) {
-        output = output + "--" + printExpression(p_exp->get_operand());
-      } else {
-        output = output + printExpression(p_exp->get_operand()) + "--";
-      }
-      break;
-    }
-    default:
-      output = output + "/*UNHANDLED " + expr->class_name() + "*/\n";// + expr->unparseToString();
-      break;
-  }
-  if (expr->get_need_paren()) {
-    output = output + ")";
-  }
-  return output;
-}
-
 string printFunctionDeclaration(SgFunctionDeclaration* decl) {
   string output = "";
   SgSymbol* symbol = decl->get_symbol_from_symbol_table();
@@ -377,29 +368,13 @@ string printFunctionDeclaration(SgFunctionDeclaration* decl) {
     SgFunctionDeclaration* f_decl = def->get_declaration();
     output = printType(f_decl->get_orig_return_type()) + " " + f_decl->get_name().getString() + "()\n";
 
-    // // TODO: parameter list
-    // cout << "(";
-    // SgInitializedNamePtrList& params = f_decl->get_args();
-    // SgInitializedNamePtrList::const_iterator param_iter;
-    // int firstOne = 1;
-    // for (param_iter = params.begin(); param_iter != params.end(); param_iter++) {
-    //   SgInitializedName* param = *param_iter;
-    //   if (!firstOne) {
-    //     cout << ", ";
-    //     firstOne = 0;
-    //   }
-    //   cout << printType(param->get_type()) << " " << param->get_name().getString();
-    // }
-    // cout << ")" << endl;
-
     SgBasicBlock* body = def->get_body();
     SgStatementPtrList& stmt_list = body->get_statements();
-    // cout << "[Func] - " << stmt_list.size() << " statements" << endl;
-    // An SgBasicBlock is a subclass of SgScopeStatement; process the symbol table for this scope
-    // output = output + printScopeStatement(body,symbol->get_name().getString());
     output = output + printBasicBlock(body);
   } else if (symbol) {
-    output = "// Function " + symbol->get_name().getString() + " has no body; assuming a builtin function.\n";
+    output = "// Function " + symbol->get_name().getString() + " has no body; assuming a builtin or included function.\n";
+  } else {
+    output = "// Function has no symbol!\n";
   }
   return output;
 }
