@@ -119,6 +119,14 @@ string printExpression(SgExpression* expr) {
       output = output + "+" + printExpression(a_exp->get_operand());
       break;
     }
+    case V_SgBitComplementOp: {
+      SgBitComplementOp* b_exp = isSgBitComplementOp(expr);
+      output = output + "~" + printExpression(b_exp->get_operand());
+    }
+    case V_SgAddressOfOp: {
+      SgAddressOfOp* a_exp = isSgAddressOfOp(expr);
+      output = output + "&" + printExpression(a_exp->get_operand());
+    }
     case V_SgPlusPlusOp: {
       SgPlusPlusOp* p_exp = isSgPlusPlusOp(expr);
       if (p_exp->get_mode() == SgUnaryOp::prefix) {
