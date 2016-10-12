@@ -122,10 +122,12 @@ string printExpression(SgExpression* expr) {
     case V_SgBitComplementOp: {
       SgBitComplementOp* b_exp = isSgBitComplementOp(expr);
       output = output + "~" + printExpression(b_exp->get_operand());
+      break;
     }
     case V_SgAddressOfOp: {
       SgAddressOfOp* a_exp = isSgAddressOfOp(expr);
       output = output + "&" + printExpression(a_exp->get_operand());
+      break;
     }
     case V_SgPlusPlusOp: {
       SgPlusPlusOp* p_exp = isSgPlusPlusOp(expr);
