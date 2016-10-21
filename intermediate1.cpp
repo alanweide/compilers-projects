@@ -28,9 +28,9 @@ string printArrayDec(SgSymbol *symbol);
 string printFunctionDeclaration(SgFunctionDeclaration* decl);
 string prettyPrint(SgProject* project);
 
-string newTemp() {
+string newTemp(SgType* type) {
   curTemp++;
-  return "_t" + curTemp;
+  return printType(type) + " _t" + curTemp;
 }
 
 string printExpression(SgExpression* expr) {
@@ -412,7 +412,7 @@ ExpressionNode translatedBinaryOp(SgBinaryOp* expr) {
   ExpressionNode lhs = translatedExpression(expr->get_lhs_operand());
   ExpressionNode rhs = translatedExpression(expr->get_rhs_operand());
   ExpressionNode out;
-  out.addr = newTemp();
+  out.addr = newTemp(expr->get_type());
   out.code = lhs.code + rhs.code;
   out.code = out.code + out.addr + " = " + lhs.addr + printOperatorForBinaryOp(expr) + rhs.addr + ";\n";
 }
