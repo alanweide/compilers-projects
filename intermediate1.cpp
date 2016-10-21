@@ -553,8 +553,7 @@ string printIfStmt(SgIfStmt* stmt) {
 }
 
 string printBasicBlock(SgBasicBlock* block) {
-  string output = "{\n" + tempVars.str();
-  tempVars.str("");
+  string output = "";
   SgStatementPtrList& stmt_list = block->get_statements();
   SgStatementPtrList::const_iterator iter;
   for (iter=stmt_list.begin(); iter != stmt_list.end(); iter++) {
@@ -562,7 +561,9 @@ string printBasicBlock(SgBasicBlock* block) {
     output = output + printStatement(stmt);
   }
   output = output + "}\n";
-  return output;
+  string ans = "{\n" + tempVars.str();
+  tempVars.str("");
+  return ans + output;
 }
 
 string printVariableDeclaration(SgVariableDeclaration* decl) {
