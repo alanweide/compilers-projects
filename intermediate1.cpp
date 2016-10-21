@@ -285,23 +285,23 @@ ExpressionNode translatedExpression(SgExpression* expr) {
     case V_SgPlusPlusOp: {
       SgPlusPlusOp* p_exp = isSgPlusPlusOp(expr);
       if (p_exp->get_mode() == SgUnaryOp::prefix) {
-        output = output + "++" + printExpression(p_exp->get_operand());
+        output.code = "++" + printExpression(p_exp->get_operand());
       } else {
-        output = output + printExpression(p_exp->get_operand()) + "++";
+        output.code = printExpression(p_exp->get_operand()) + "++";
       }
       break;
     }
     case V_SgMinusMinusOp: {
       SgMinusMinusOp* p_exp = isSgMinusMinusOp(expr);
       if (p_exp->get_mode() == SgUnaryOp::prefix) {
-        output = output + "--" + printExpression(p_exp->get_operand());
+        output.code = "--" + printExpression(p_exp->get_operand());
       } else {
-        output = output + printExpression(p_exp->get_operand()) + "--";
+        output.code = printExpression(p_exp->get_operand()) + "--";
       }
       break;
     }
     default:
-      output = output + "/*UNHANDLED " + expr->class_name() + "*/\n";// + expr->unparseToString();
+      output.code = "/*UNHANDLED " + expr->class_name() + "*/\n";// + expr->unparseToString();
       break;
   }
   return output;
@@ -411,7 +411,7 @@ ExpressionNode translatedBinaryOp(SgBinaryOp* expr) {
   out.addr = newTemp(expr->get_type());
   out.code = lhs.code + rhs.code;
   out.code = out.code + out.addr + " = " + lhs.addr + printOperatorForBinaryOp(expr) + rhs.addr + ";\n";
-  return output;
+  return out;
 }
 
 ExpressionNode translatedPntrArrRefExp(SgPntrArrRefExp* expr) {
@@ -421,7 +421,7 @@ ExpressionNode translatedPntrArrRefExp(SgPntrArrRefExp* expr) {
   out.addr = newTemp(expr->get_type());
   out.code = rhs.code;
   out.code = out.code + out.addr + " = " + lhs.addr + "[" + rhs.addr + "]";
-  return output;
+  return out;
 }
 
 string printOperatorForUnaryOp(SgUnaryOp* op) {
