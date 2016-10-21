@@ -553,7 +553,8 @@ string printIfStmt(SgIfStmt* stmt) {
 }
 
 string printBasicBlock(SgBasicBlock* block) {
-  string output = "{\n";
+  string output = "{\n" + tempVars.str();
+  tempVars.str("");
   SgStatementPtrList& stmt_list = block->get_statements();
   SgStatementPtrList::const_iterator iter;
   for (iter=stmt_list.begin(); iter != stmt_list.end(); iter++) {
@@ -608,9 +609,7 @@ string printFunctionDeclaration(SgFunctionDeclaration* decl) {
 
     SgBasicBlock* body = def->get_body();
     SgStatementPtrList& stmt_list = body->get_statements();
-    string fullBody = printBasicBlock(body);
-    output = output + tempVars.str() + fullBody;
-    tempVars.str("");
+    output = output + printBasicBlock(body);
   } else if (symbol) {
     // output = "// Function " + symbol->get_name().getString() + " has no body; assuming a builtin or included function.\n";
   } else {
