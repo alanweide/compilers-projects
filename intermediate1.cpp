@@ -38,7 +38,7 @@ string newTemp(SgType* type) {
   curTemp++;
   ostringstream output;
   output << "_t" << curTemp;
-  tempVars << printType(type) + " " + output.str();
+  tempVars << printType(type) << " " << output.str() << ";\n";
   return output.str();
 }
 
@@ -225,7 +225,7 @@ ExpressionNode translatedExpression(SgExpression* expr) {
       output.addr = printExpression(bi_expr->get_lhs_operand());
       ExpressionNode rhs_e = translatedExpression(bi_expr->get_rhs_operand());
       string op = printOperatorForBinaryOp(bi_expr);
-      output.code = rhs_e.code + output.addr + op + rhs_e.addr;
+      output.code = rhs_e.code + output.addr + op + rhs_e.addr + ";\n";
       break;
     }
     case V_SgIntVal: {
