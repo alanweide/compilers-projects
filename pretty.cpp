@@ -12,6 +12,7 @@ string printDoWhileStmt(SgDoWhileStmt* dow_stmt);
 string printIfStmt(SgIfStmt* stmt);
 string printBasicBlock(SgBasicBlock* block);
 string printVariableDeclaration(SgVariableDeclaration* decl);
+string printArrayDec(SgSymbol *symbol);
 string printFunctionDeclaration(SgFunctionDeclaration* decl);
 string prettyPrint(SgProject* project);
 
@@ -387,7 +388,7 @@ string printVariableDeclaration(SgVariableDeclaration* decl) {
 string printArrayDec(SgSymbol* symbol) {
   string output = "";
 
-  SgArrayType *type = symbol->get_type();
+  SgArrayType *type = isSgArrayType(symbol->get_type());
   SgType *baseType = type->get_base_type();
   
   SgArrayType *a_type;
