@@ -391,7 +391,7 @@ string printArrayDec(SgSymbol* symbol) {
   SgType *baseType = symbol->get_type();
   SgArrayType *a_type;
   while (a_type = isSgArrayType(baseType)) {
-    output = "[" + printExpression(a_type->get_index()) + "]" + output;
+    output = output + "[" + printExpression(a_type->get_index()) + "]";
     baseType = a_type->get_base_type();
   }
 
