@@ -426,16 +426,18 @@ ExpressionNode translatedAssignOp(SgBinaryOp* expr) {
   ExpressionNode lhs_e = translatedExpression(lhs);
   string op = printOperatorForBinaryOp(bi_expr);
   switch(lhs->variantT()) {
-    case V_SgVarRefExp:
+    case V_SgVarRefExp: {
       output.addr = lhs_e.addr;
       output.code = rhs_e.code + output.addr + op + rhs_e.addr + ";\n";
       break;
-    case V_SgPntrArrRefExp:
+    }
+    case V_SgPntrArrRefExp: {
       SgPntrArrRefExp* p_exp = isSgPntrArrRefExp(lhs);
       ExpressionNode e1 = translatedExpression(p_exp->get_rhs_operand());
       output.addr = printExpression(p_exp->get_lhs_operand()) + "[" + e1.addr + "]";
       output.code = e1.code + output.addr + op + rhs_e.addr + ";\n";
       break;
+    }
     default:
       output.addr = "";
       output.code = "/* UNHANDLED ASSIGN OP */\n";
