@@ -12,7 +12,7 @@
 #                       myfile3.cpp      <- No backslash on last line!
 
 SOURCE_FILES  =       \
-                      main.cpp pretty.cpp
+                      main.cpp intermediate1.cpp
 
 BINARY_FILE	=	mycompiler
 
