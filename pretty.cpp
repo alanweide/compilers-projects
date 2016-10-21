@@ -388,9 +388,7 @@ string printVariableDeclaration(SgVariableDeclaration* decl) {
 string printArrayDec(SgSymbol* symbol) {
   string output = "";
 
-  SgArrayType *type = isSgArrayType(symbol->get_type());
-  SgType *baseType = type->get_base_type();
-  
+  SgArrayType *baseType = isSgArrayType(symbol->get_type());
   SgArrayType *a_type;
   while (a_type = isSgArrayType(baseType)) {
     output = "[" + printExpression(a_type->get_index()) + "]" + output;
