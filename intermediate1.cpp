@@ -562,7 +562,6 @@ string printBasicBlock(SgBasicBlock* block) {
   }
   output = output + "}\n";
   string ans = "{\n" + tempVars.str();
-  tempVars.str("");
   return ans + output;
 }
 
