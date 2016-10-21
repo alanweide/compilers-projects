@@ -189,10 +189,21 @@ ExpressionNode translatedExpression(SgExpression* expr) {
   switch(expr->variantT()) {
     case V_SgAddOp:
     case V_SgAndOp:
-    case V_SgAssignOp:
     case V_SgBitAndOp:
     case V_SgBitOrOp:
     case V_SgBitXorOp:
+    case V_SgDivideOp:
+    case V_SgLshiftOp:
+    case V_SgModOp:
+    case V_SgMultiplyOp:
+    case V_SgOrOp:
+    case V_SgRshiftOp:
+    case V_SgSubtractOp: {
+      SgBinaryOp* bi_expr = isSgBinaryOp(expr);
+      output = translatedBinaryOp(bi_expr);
+      break;
+    }
+    case V_SgAssignOp:
     case V_SgAndAssignOp:
     case V_SgDivAssignOp:
     case V_SgIorAssignOp:
@@ -202,24 +213,21 @@ ExpressionNode translatedExpression(SgExpression* expr) {
     case V_SgMultAssignOp:
     case V_SgPlusAssignOp:
     case V_SgRshiftAssignOp:
-    case V_SgXorAssignOp:
-    case V_SgDivideOp:
+    case V_SgXorAssignOp: {
+      SgBinaryOp* bi_expr = isSgBinaryOp(expr);
+      output.addr = printExpression(expr->get_lhs_operand());
+      ExpressionNode rhs_e = translatedExpression(expr->get_rhs_operand());
+      string op = printOperatorForBinaryOp(expr);
+      output.code = rhs_e.code + output.addr + op + rhs_e.addr; 
+    }
+
     case V_SgEqualityOp:
     case V_SgGreaterOrEqualOp:
     case V_SgGreaterThanOp:
     case V_SgLessOrEqualOp:
     case V_SgLessThanOp:
-    case V_SgLshiftOp:
-    case V_SgModOp:
-    case V_SgMultiplyOp:
     case V_SgNotEqualOp:
-    case V_SgOrOp:
-    case V_SgRshiftOp:
-    case V_SgSubtractOp: {
-      SgBinaryOp* bi_expr = isSgBinaryOp(expr);
-      output = translatedBinaryOp(bi_expr);
-      break;
-    }
+
     case V_SgIntVal: {
       SgIntVal* v_exp = isSgIntVal(expr);
       ostringstream convert;
@@ -600,9 +608,9 @@ string printFunctionDeclaration(SgFunctionDeclaration* decl) {
 
     SgBasicBlock* body = def->get_body();
     SgStatementPtrList& stmt_list = body->get_statements();
-    output = output + tempVars.str();
+    string fullBody = printBasicBlock(body);
+    output = output + tempVars.str() + fullBody;
     tempVars.str("");
-    output = output + printBasicBlock(body);
   } else if (symbol) {
     // output = "// Function " + symbol->get_name().getString() + " has no body; assuming a builtin or included function.\n";
   } else {
