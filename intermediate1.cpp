@@ -10,10 +10,7 @@ struct ExpressionNode
   string addr;
 }; 
 
-ostringstream tempVars;
-
 string newTemp();
-
 string printExpression(SgExpression* expr);
 ExpressionNode translatedExpression(SgExpression* expr);
 string printType(SgType* type);
@@ -21,6 +18,7 @@ string printOperatorForBinaryOp(SgBinaryOp* op);
 string printOperatorForUnaryOp(SgUnaryOp* op);
 string printBinaryOp(SgBinaryOp* expr);
 ExpressionNode translatedBinaryOp(SgBinaryOp* expr);
+ExpressionNode translatedAssignOp(SgBinaryOp* expr);
 ExpressionNode translatedPntrArrRefExp(SgPntrArrRefExp* expr);
 ExpressionNode translatedUnaryOp(SgUnaryOp* expr);
 string printStatement(SgStatement* stmt);
@@ -38,7 +36,6 @@ string newTemp(SgType* type) {
   curTemp++;
   ostringstream output;
   output << "_t" << curTemp;
-  tempVars << printType(type) << " " << output.str() << ";\n";
   return output.str();
 }
 
@@ -221,12 +218,8 @@ ExpressionNode translatedExpression(SgExpression* expr) {
     case V_SgPlusAssignOp:
     case V_SgRshiftAssignOp:
     case V_SgXorAssignOp: {
-      SgBinaryOp* bi_expr = isSgBinaryOp(expr);
-      ExpressionNode lhs_e = translatedExpression(bi_expr->get_lhs_operand());
-      ExpressionNode rhs_e = translatedExpression(bi_expr->get_rhs_operand());
-      string op = printOperatorForBinaryOp(bi_expr);
-      output.addr = lhs_e.addr;
-      output.code = lhs_e.code + rhs_e.code + output.addr + op + rhs_e.addr + ";\n";
+      SgBinaryOp* ass_expr = isSgBinaryOp(expr);
+      output = translatedAssignOp(ass_expr);
       break;
     }
     case V_SgIntVal: {
@@ -418,9 +411,30 @@ ExpressionNode translatedBinaryOp(SgBinaryOp* expr) {
   ExpressionNode rhs = translatedExpression(expr->get_rhs_operand());
   ExpressionNode out;
   out.addr = newTemp(expr->get_type());
-  out.code = lhs.code + rhs.code;
+  out.code = printType(expr->get_type()) + " " + out.addr + ";\n"
+  out.code = out.code + lhs.code + rhs.code;
   out.code = out.code + out.addr + " = " + lhs.addr + printOperatorForBinaryOp(expr) + rhs.addr + ";\n";
   return out;
+}
+
+ExpressionNode translatedAssignOp(SgBinaryOp* expr) {
+  ExpressionNode output;
+  SgBinaryOp* bi_expr = isSgBinaryOp(expr);
+  SgExpression* lhs = bi_expr->get_lhs_operand();
+  SgExpression* rhs = bi_expr->get_rhs_operand();
+  ExpressionNode rhs_e = translatedExpression(rhs);
+  ExpressionNode lhs_e = translatedExpression(lhs);
+  switch(lhs->variantT()) {
+    case V_SgVarRefExp:
+      output.addr = lhs_e.addr;
+      output.code = rhs_e.code + output.addr + " = " + rhs_e.addr + ";\n";
+    case V_SgPntrArrRefExp:
+
+  }
+  string op = printOperatorForBinaryOp(bi_expr);
+  output.addr = lhs_e.addr;
+  output.code = lhs_e.code + rhs_e.code + output.addr + op + rhs_e.addr + ";\n";
+  return output;
 }
 
 ExpressionNode translatedPntrArrRefExp(SgPntrArrRefExp* expr) {
@@ -428,7 +442,8 @@ ExpressionNode translatedPntrArrRefExp(SgPntrArrRefExp* expr) {
   ExpressionNode rhs = translatedExpression(expr->get_rhs_operand());
   ExpressionNode out;
   out.addr = newTemp(expr->get_type());
-  out.code = rhs.code;
+  out.code = printType(expr->get_type()) + " " + out.addr + ";\n"
+  out.code = out.code + lhs.code + rhs.code;
   out.code = out.code + out.addr + " = " + lhs.addr + "[" + rhs.addr + "];\n";
   return out;
 }
@@ -449,7 +464,9 @@ ExpressionNode translatedUnaryOp(SgUnaryOp* expr) {
   ExpressionNode op = translatedExpression(expr->get_operand());
   output.addr = newTemp(expr->get_type());
   string oper = printOperatorForUnaryOp(expr);
-  output.code = op.code + output.addr + " = " + oper + op.addr;
+  out.code = printType(expr->get_type()) + " " + out.addr + ";\n"
+  out.code = out.code + lhs.code + rhs.code;
+  output.code = out.code + op.code + output.addr + " = " + oper + op.addr;
   return output;
 }
 
@@ -554,7 +571,7 @@ string printIfStmt(SgIfStmt* stmt) {
 }
 
 string printBasicBlock(SgBasicBlock* block) {
-  string output = "";
+  string output = "{\n";
   SgStatementPtrList& stmt_list = block->get_statements();
   SgStatementPtrList::const_iterator iter;
   for (iter=stmt_list.begin(); iter != stmt_list.end(); iter++) {
@@ -562,9 +579,7 @@ string printBasicBlock(SgBasicBlock* block) {
     output = output + printStatement(stmt);
   }
   output = output + "}\n";
-  string ans = "{\n" + tempVars.str();
-  tempVars.str("/* DON'T PRINT ME! */");
-  return ans + output;
+  return output;
 }
 
 string printVariableDeclaration(SgVariableDeclaration* decl) {
