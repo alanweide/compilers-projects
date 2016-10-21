@@ -226,9 +226,9 @@ string printOperatorForBinaryOp(SgBinaryOp* op) {
     case V_SgGreaterThanOp:
       return " > ";
     case V_SgLessOrEqualOp:
-      return " < ";
-    case V_SgLessThanOp:
       return " <= ";
+    case V_SgLessThanOp:
+      return " < ";
     case V_SgLshiftOp:
       return " << ";
     case V_SgModOp:
