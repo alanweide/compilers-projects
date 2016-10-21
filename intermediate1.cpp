@@ -411,7 +411,7 @@ ExpressionNode translatedBinaryOp(SgBinaryOp* expr) {
   ExpressionNode rhs = translatedExpression(expr->get_rhs_operand());
   ExpressionNode out;
   out.addr = newTemp(expr->get_type());
-  out.code = printType(expr->get_type()) + " " + out.addr + ";\n"
+  out.code = printType(expr->get_type()) + " " + out.addr + ";\n";
   out.code = out.code + lhs.code + rhs.code;
   out.code = out.code + out.addr + " = " + lhs.addr + printOperatorForBinaryOp(expr) + rhs.addr + ";\n";
   return out;
@@ -424,16 +424,21 @@ ExpressionNode translatedAssignOp(SgBinaryOp* expr) {
   SgExpression* rhs = bi_expr->get_rhs_operand();
   ExpressionNode rhs_e = translatedExpression(rhs);
   ExpressionNode lhs_e = translatedExpression(lhs);
+  string op = printOperatorForBinaryOp(bi_expr);
   switch(lhs->variantT()) {
     case V_SgVarRefExp:
       output.addr = lhs_e.addr;
-      output.code = rhs_e.code + output.addr + " = " + rhs_e.addr + ";\n";
+      output.code = rhs_e.code + output.addr + op + rhs_e.addr + ";\n";
+      break;
     case V_SgPntrArrRefExp:
-
+      ExpressionNode e1 = translatedExpression(lhs->get_rhs_operand());
+      output.addr = printExpression(lhs->get_lhs_operand()) + "[" + e1.addr + "]";
+      output.code = e1.code + output.addr + op + rhs_e.addr + ";\n";
+      break;
+    default:
+      output.addr = "";
+      output.code = "/* UNHANDLED ASSIGN OP */\n";
   }
-  string op = printOperatorForBinaryOp(bi_expr);
-  output.addr = lhs_e.addr;
-  output.code = lhs_e.code + rhs_e.code + output.addr + op + rhs_e.addr + ";\n";
   return output;
 }
 
