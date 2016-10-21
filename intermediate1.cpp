@@ -187,6 +187,13 @@ string printExpression(SgExpression* expr) {
 ExpressionNode translatedExpression(SgExpression* expr) {
   ExpressionNode output;
   switch(expr->variantT()) {
+    case V_SgEqualityOp:
+    case V_SgGreaterOrEqualOp:
+    case V_SgGreaterThanOp:
+    case V_SgLessOrEqualOp:
+    case V_SgLessThanOp:
+    case V_SgNotEqualOp:
+
     case V_SgAddOp:
     case V_SgAndOp:
     case V_SgBitAndOp:
@@ -218,16 +225,9 @@ ExpressionNode translatedExpression(SgExpression* expr) {
       output.addr = printExpression(bi_expr->get_lhs_operand());
       ExpressionNode rhs_e = translatedExpression(bi_expr->get_rhs_operand());
       string op = printOperatorForBinaryOp(bi_expr);
-      output.code = rhs_e.code + output.addr + op + rhs_e.addr; 
+      output.code = rhs_e.code + output.addr + op + rhs_e.addr;
+      break;
     }
-
-    case V_SgEqualityOp:
-    case V_SgGreaterOrEqualOp:
-    case V_SgGreaterThanOp:
-    case V_SgLessOrEqualOp:
-    case V_SgLessThanOp:
-    case V_SgNotEqualOp:
-
     case V_SgIntVal: {
       SgIntVal* v_exp = isSgIntVal(expr);
       ostringstream convert;
