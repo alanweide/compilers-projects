@@ -431,8 +431,9 @@ ExpressionNode translatedAssignOp(SgBinaryOp* expr) {
       output.code = rhs_e.code + output.addr + op + rhs_e.addr + ";\n";
       break;
     case V_SgPntrArrRefExp:
-      ExpressionNode e1 = translatedExpression(lhs->get_rhs_operand());
-      output.addr = printExpression(lhs->get_lhs_operand()) + "[" + e1.addr + "]";
+      SgPntrArrRefExp* p_exp = isSgPntrArrRefExp(lhs);
+      ExpressionNode e1 = translatedExpression(p_exp->get_rhs_operand());
+      output.addr = printExpression(p_exp->get_lhs_operand()) + "[" + e1.addr + "]";
       output.code = e1.code + output.addr + op + rhs_e.addr + ";\n";
       break;
     default:
@@ -447,7 +448,7 @@ ExpressionNode translatedPntrArrRefExp(SgPntrArrRefExp* expr) {
   ExpressionNode rhs = translatedExpression(expr->get_rhs_operand());
   ExpressionNode out;
   out.addr = newTemp(expr->get_type());
-  out.code = printType(expr->get_type()) + " " + out.addr + ";\n"
+  out.code = printType(expr->get_type()) + " " + out.addr + ";\n";
   out.code = out.code + lhs.code + rhs.code;
   out.code = out.code + out.addr + " = " + lhs.addr + "[" + rhs.addr + "];\n";
   return out;
@@ -465,14 +466,14 @@ string printOperatorForUnaryOp(SgUnaryOp* op) {
 }
 
 ExpressionNode translatedUnaryOp(SgUnaryOp* expr) {
-  ExpressionNode output;
+  ExpressionNode out;
   ExpressionNode op = translatedExpression(expr->get_operand());
   output.addr = newTemp(expr->get_type());
   string oper = printOperatorForUnaryOp(expr);
-  out.code = printType(expr->get_type()) + " " + out.addr + ";\n"
+  out.code = printType(expr->get_type()) + " " + out.addr + ";\n";
   out.code = out.code + lhs.code + rhs.code;
-  output.code = out.code + op.code + output.addr + " = " + oper + op.addr;
-  return output;
+  out.code = out.code + op.code + out.addr + " = " + oper + op.addr;
+  return out;
 }
 
 string printStatement(SgStatement* stmt) {
