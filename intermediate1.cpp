@@ -222,7 +222,7 @@ ExpressionNode translatedExpression(SgExpression* expr) {
     case V_SgRshiftAssignOp:
     case V_SgXorAssignOp: {
       SgBinaryOp* bi_expr = isSgBinaryOp(expr);
-      ExpressionNode lhs_e = translatedExpression(bi_expr->get_lhs_operand);
+      ExpressionNode lhs_e = translatedExpression(bi_expr->get_lhs_operand());
       ExpressionNode rhs_e = translatedExpression(bi_expr->get_rhs_operand());
       string op = printOperatorForBinaryOp(bi_expr);
       output.addr = lhs_e.addr;
