@@ -169,10 +169,6 @@ string printType(SgType* type) {
       return "float";
     case V_SgTypeDouble:
       return "double";
-    case V_SgArrayType: {
-      SgArrayType* a_type = isSgArrayType(type);
-      return printType(a_type->get_base_type()) + "[" + printExpression(a_type->get_index()) + "]";
-    }
     case V_SgPointerType: {
       SgPointerType* p_type = isSgPointerType(type);
       return printType(p_type->get_base_type()) + "*";
@@ -374,13 +370,32 @@ string printVariableDeclaration(SgVariableDeclaration* decl) {
   for (name_iter = name_list.begin(); name_iter != name_list.end(); name_iter++) {
     SgInitializedName* name = *name_iter;
     SgSymbol* symbol = name->get_symbol_from_symbol_table();
-    output = output + printType(symbol->get_type()) + " " + symbol->get_name().getString();
+    SgType *type = symbol->get_type();
+    if (isSgArrayType(type)) {
+      output = output + printArrayDec(symbol);
+    } else {
+      output = output + printType(symbol->get_type()) + " " + symbol->get_name().getString();
+    }
     SgInitializer* init_expr = name->get_initializer();
     if (init_expr) {
       output = output + " = " + printExpression(init_expr);
     }
   }
   return output;
+}
+
+string printArrayDec(SgSymbol* symbol) {
+  string output = "";
+
+  SgArrayType *type = symbol->get_type();
+  SgType *baseType = type->get_base_type();
+  
+  SgArrayType *a_type;
+  while (a_type = isSgArrayType(baseType)) {
+    output = "[" + printExpression(a_type->get_index()) + "]" + output;
+  }
+
+  return printType(baseType) + " " + symbol->get_name().getString() + output;
 }
 
 string printFunctionDeclaration(SgFunctionDeclaration* decl) {
