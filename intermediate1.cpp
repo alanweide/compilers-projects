@@ -222,10 +222,11 @@ ExpressionNode translatedExpression(SgExpression* expr) {
     case V_SgRshiftAssignOp:
     case V_SgXorAssignOp: {
       SgBinaryOp* bi_expr = isSgBinaryOp(expr);
-      output.addr = printExpression(bi_expr->get_lhs_operand());
+      ExpressionNode lhs_e = translatedExpression(bi_expr->get_lhs_operand);
       ExpressionNode rhs_e = translatedExpression(bi_expr->get_rhs_operand());
       string op = printOperatorForBinaryOp(bi_expr);
-      output.code = rhs_e.code + output.addr + op + rhs_e.addr + ";\n";
+      output.addr = lhs_e.addr;
+      output.code = lhs_e.code + rhs_e.code + output.addr + op + rhs_e.addr + ";\n";
       break;
     }
     case V_SgIntVal: {
@@ -428,7 +429,7 @@ ExpressionNode translatedPntrArrRefExp(SgPntrArrRefExp* expr) {
   ExpressionNode out;
   out.addr = newTemp(expr->get_type());
   out.code = rhs.code;
-  out.code = out.code + out.addr + " = " + lhs.addr + "[" + rhs.addr + "]";
+  out.code = out.code + out.addr + " = " + lhs.addr + "[" + rhs.addr + "];\n";
   return out;
 }
 
@@ -562,6 +563,7 @@ string printBasicBlock(SgBasicBlock* block) {
   }
   output = output + "}\n";
   string ans = "{\n" + tempVars.str();
+  tempVars.str("/* DON'T PRINT ME! */");
   return ans + output;
 }
 
