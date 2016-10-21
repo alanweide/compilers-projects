@@ -470,10 +470,9 @@ string printOperatorForUnaryOp(SgUnaryOp* op) {
 ExpressionNode translatedUnaryOp(SgUnaryOp* expr) {
   ExpressionNode out;
   ExpressionNode op = translatedExpression(expr->get_operand());
-  output.addr = newTemp(expr->get_type());
+  out.addr = newTemp(expr->get_type());
   string oper = printOperatorForUnaryOp(expr);
   out.code = printType(expr->get_type()) + " " + out.addr + ";\n";
-  out.code = out.code + lhs.code + rhs.code;
   out.code = out.code + op.code + out.addr + " = " + oper + op.addr;
   return out;
 }
