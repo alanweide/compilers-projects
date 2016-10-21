@@ -1,10 +1,22 @@
 #include <rose.h>
 using namespace std;
 
+int curTemp = 0;
+
+struct ExpressionNode
+{
+  string code;
+  string addr;
+}; 
+
+string newTemp();
+
 string printExpression(SgExpression* expr);
+string translatedExpression(SgExpression* expr);
 string printType(SgType* type);
 string printOperatorForBinaryOp(SgBinaryOp* op);
 string printBinaryOp(SgBinaryOp* expr);
+string translatedBinaryOp(SgBinaryOp* expr);
 string printStatement(SgStatement* stmt);
 string printForStmt(SgForStatement* for_stmt);
 string printWhileStmt(SgWhileStmt* while_stmt);
@@ -15,6 +27,11 @@ string printVariableDeclaration(SgVariableDeclaration* decl);
 string printArrayDec(SgSymbol *symbol);
 string printFunctionDeclaration(SgFunctionDeclaration* decl);
 string prettyPrint(SgProject* project);
+
+string newTemp() {
+  curTemp++;
+  return "_t" + curTemp;
+}
 
 string printExpression(SgExpression* expr) {
   string output = "";
@@ -158,6 +175,142 @@ string printExpression(SgExpression* expr) {
   return output;
 }
 
+ExpressionNode translatedExpression(SgExpression* expr) {
+  string output = "";
+  switch(expr->variantT()) {
+    case V_SgAddOp:
+    case V_SgAndOp:
+    case V_SgAssignOp:
+    case V_SgBitAndOp:
+    case V_SgBitOrOp:
+    case V_SgBitXorOp:
+    case V_SgAndAssignOp:
+    case V_SgDivAssignOp:
+    case V_SgIorAssignOp:
+    case V_SgLshiftAssignOp:
+    case V_SgMinusAssignOp:
+    case V_SgModAssignOp:
+    case V_SgMultAssignOp:
+    case V_SgPlusAssignOp:
+    case V_SgRshiftAssignOp:
+    case V_SgXorAssignOp:
+    case V_SgDivideOp:
+    case V_SgEqualityOp:
+    case V_SgGreaterOrEqualOp:
+    case V_SgGreaterThanOp:
+    case V_SgLessOrEqualOp:
+    case V_SgLessThanOp:
+    case V_SgLshiftOp:
+    case V_SgModOp:
+    case V_SgMultiplyOp:
+    case V_SgNotEqualOp:
+    case V_SgOrOp:
+    case V_SgRshiftOp:
+    case V_SgSubtractOp: {
+      SgBinaryOp* bi_expr = isSgBinaryOp(expr);
+      output = output + printBinaryOp(bi_expr);
+      break;
+    }
+    case V_SgIntVal: {
+      SgIntVal* v_exp = isSgIntVal(expr);
+      ostringstream convert;
+      convert << v_exp->get_value();
+      output = output + convert.str();
+      break;
+    }
+    case V_SgLongIntVal: {
+      SgLongIntVal* v_exp = isSgLongIntVal(expr);
+      ostringstream convert;
+      convert << v_exp->get_value();
+      output = output + convert.str() + "L";
+      break;
+    }
+    case V_SgUnsignedLongVal: {
+      SgUnsignedLongVal* v_exp = isSgUnsignedLongVal(expr);
+      ostringstream convert;
+      convert << v_exp->get_value();
+      output = output + convert.str() + "UL";
+      break;
+    }
+    case V_SgFloatVal: {
+      SgFloatVal* v_exp = isSgFloatVal(expr);
+      ostringstream convert;
+      convert << v_exp->get_value();
+      output = output + convert.str() + "F";
+      break;
+    }
+    case V_SgDoubleVal: {
+      SgDoubleVal* v_exp = isSgDoubleVal(expr);
+      ostringstream convert;
+      convert << v_exp->get_value();
+      output = output + convert.str();
+      break;
+    }
+    case V_SgAssignInitializer: {
+      SgAssignInitializer* init_expr = isSgAssignInitializer(expr);
+      output = output + printExpression(init_expr->get_operand());
+      break;
+    }
+    case V_SgVarRefExp: {
+      SgVarRefExp* v_exp = isSgVarRefExp(expr);
+      output = output + v_exp->get_symbol()->get_name().getString();
+      break;
+    }
+    case V_SgPntrArrRefExp: {
+      SgPntrArrRefExp* p_exp = isSgPntrArrRefExp(expr);
+      output = output + printExpression(p_exp->get_lhs_operand()) + "[" + printExpression(p_exp->get_rhs_operand()) + "]";
+      break;
+    }
+    case V_SgPointerDerefExp: {
+      SgPointerDerefExp* p_exp = isSgPointerDerefExp(expr);
+      output = output + "*" + printExpression(p_exp->get_operand());
+      break;
+    }
+    case V_SgMinusOp: {
+      SgMinusOp* m_exp = isSgMinusOp(expr);
+      output = output + "-" + printExpression(m_exp->get_operand());
+      break;
+    }
+    case V_SgUnaryAddOp: {
+      SgUnaryAddOp* a_exp = isSgUnaryAddOp(expr);
+      output = output + "+" + printExpression(a_exp->get_operand());
+      break;
+    }
+    case V_SgBitComplementOp: {
+      SgBitComplementOp* b_exp = isSgBitComplementOp(expr);
+      output = output + "~" + printExpression(b_exp->get_operand());
+      break;
+    }
+    case V_SgAddressOfOp: {
+      SgAddressOfOp* a_exp = isSgAddressOfOp(expr);
+      output = output + "&" + printExpression(a_exp->get_operand());
+      break;
+    }
+    case V_SgPlusPlusOp: {
+      SgPlusPlusOp* p_exp = isSgPlusPlusOp(expr);
+      if (p_exp->get_mode() == SgUnaryOp::prefix) {
+        output = output + "++" + printExpression(p_exp->get_operand());
+      } else {
+        output = output + printExpression(p_exp->get_operand()) + "++";
+      }
+      break;
+    }
+    case V_SgMinusMinusOp: {
+      SgMinusMinusOp* p_exp = isSgMinusMinusOp(expr);
+      if (p_exp->get_mode() == SgUnaryOp::prefix) {
+        output = output + "--" + printExpression(p_exp->get_operand());
+      } else {
+        output = output + printExpression(p_exp->get_operand()) + "--";
+      }
+      break;
+    }
+    default:
+      output = output + "/*UNHANDLED " + expr->class_name() + "*/\n";// + expr->unparseToString();
+      break;
+  }
+  return output;
+}
+
 string printType(SgType* type) {
   switch(type->variantT()) {
     case V_SgTypeVoid:
@@ -255,6 +408,15 @@ string printBinaryOp(SgBinaryOp* expr) {
   return output;
 }
 
+ExpressionNode translatedBinaryOp(SgBinaryOp* expr) {
+  ExpressionNode lhs = translatedExpression(expr->get_lhs_operand());
+  ExpressionNode rhs = translatedExpression(expr->get_rhs_operand());
+  ExpressionNode out;
+  out.addr = newTemp();
+  out.code = lhs.code + rhs.code;
+  out.code = out.code + out.addr + " = " + lhs.addr + printOperatorForBinaryOp(expr) + rhs.addr + ";\n";
+}
+
 string printStatement(SgStatement* stmt) {
   string output = "";
     switch(stmt->variantT()) {
@@ -265,12 +427,15 @@ string printStatement(SgStatement* stmt) {
       }
       case V_SgExprStatement: {
         SgExprStatement* e_stmt = isSgExprStatement(stmt);
-        output = output + printExpression(e_stmt->get_expression()) + ";\n";
+        ExpressionNode e = translatedExpression(e_stmt->get_expression());
+        output = output + e.code;
         break;
       }
       case V_SgReturnStmt: {
         SgReturnStmt* r_stmt = isSgReturnStmt(stmt);
-        output = output + "return " + printExpression(r_stmt->get_expression()) + ";\n";
+        ExpressionNode e = transaltedExpression(r_stmt->get_expression());
+        output = output + e.code;
+        output = output + "return " + e.addr + ";\n";
         break;
       }
       case V_SgIfStmt: {
