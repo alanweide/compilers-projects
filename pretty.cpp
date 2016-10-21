@@ -394,7 +394,7 @@ string printArrayDec(SgSymbol* symbol) {
   SgArrayType *a_type;
   while (a_type = isSgArrayType(baseType)) {
     output = "[" + printExpression(a_type->get_index()) + "]" + output;
-    baseType = baseType->get_base_type();
+    baseType = a_type->get_base_type();
   }
 
   return printType(baseType) + " " + symbol->get_name().getString() + output;
