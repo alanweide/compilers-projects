@@ -19,6 +19,7 @@ string printOperatorForUnaryOp(SgUnaryOp* op);
 string printBinaryOp(SgBinaryOp* expr);
 ExpressionNode translatedBinaryOp(SgBinaryOp* expr);
 ExpressionNode translatedAssignOp(SgBinaryOp* expr);
+ExpressionNode translatedCompoundAssignOp(SgBinaryOp* expr);
 ExpressionNode translatedPntrArrRefExp(SgPntrArrRefExp* expr);
 ExpressionNode translatedUnaryOp(SgUnaryOp* expr);
 string printStatement(SgStatement* stmt);
@@ -191,7 +192,8 @@ ExpressionNode translatedExpression(SgExpression* expr) {
     case V_SgLessThanOp:
     case V_SgNotEqualOp: {
       SgBinaryOp* bi_expr = isSgBinaryOp(expr);
-      output.code = printBinaryOp(bi_expr);
+      output.code = "/* Not required to translate relational operator */\n" + 
+                    printBinaryOp(bi_expr);
       output.addr = "";
       break;
     }
@@ -212,7 +214,12 @@ ExpressionNode translatedExpression(SgExpression* expr) {
       output = translatedBinaryOp(bi_expr);
       break;
     }
-    case V_SgAssignOp:
+    case V_SgAssignOp: {
+      SgBinaryOp* ass_expr = isSgBinaryOp(expr);
+      output = translatedAssignOp(ass_expr);
+      break;
+    }
+
     case V_SgAndAssignOp:
     case V_SgDivAssignOp:
     case V_SgIorAssignOp:
@@ -224,9 +231,9 @@ ExpressionNode translatedExpression(SgExpression* expr) {
     case V_SgRshiftAssignOp:
     case V_SgXorAssignOp: {
       SgBinaryOp* ass_expr = isSgBinaryOp(expr);
-      output = translatedAssignOp(ass_expr);
-      break;
+      output = translatedCompoundAssignOp(ass_expr);
     }
+
     case V_SgIntVal: {
       SgIntVal* v_exp = isSgIntVal(expr);
       ostringstream convert;
@@ -424,12 +431,11 @@ ExpressionNode translatedBinaryOp(SgBinaryOp* expr) {
 
 ExpressionNode translatedAssignOp(SgBinaryOp* expr) {
   ExpressionNode output;
-  SgBinaryOp* bi_expr = isSgBinaryOp(expr);
-  SgExpression* lhs = bi_expr->get_lhs_operand();
-  SgExpression* rhs = bi_expr->get_rhs_operand();
+  SgExpression* lhs = expr->get_lhs_operand();
+  SgExpression* rhs = expr->get_rhs_operand();
   ExpressionNode rhs_e = translatedExpression(rhs);
   ExpressionNode lhs_e = translatedExpression(lhs);
-  string op = printOperatorForBinaryOp(bi_expr);
+  string op = printOperatorForBinaryOp(expr);
   switch(lhs->variantT()) {
     case V_SgVarRefExp: {
       output.addr = lhs_e.addr;
@@ -448,6 +454,71 @@ ExpressionNode translatedAssignOp(SgBinaryOp* expr) {
       output.code = "/* UNHANDLED ASSIGN OP */\n";
   }
   return output;
+}
+
+ExpressionNode translatedCompoundAssignOp(SgBinaryOp* expr) {
+  ExpressionNode output;
+  string op;
+  SgExpression* lhs = expr->get_lhs_operand();
+  SgExpression* rhs = expr->get_rhs_operand();
+  ExpressionNode rhs_e = translatedExpression(rhs);
+  ExpressionNode lhs_e = translatedExpression(lhs);
+
+  switch (expr->variantT()) {
+    case V_SgAndAssignOp:
+      op = " & ";
+      break;
+    case V_SgDivAssignOp:
+      op = " / ";
+      break;
+    case V_SgIorAssignOp:
+      op = " | ";
+      break;
+    case V_SgLshiftAssignOp:
+      op = " << ";
+      break;
+    case V_SgMinusAssignOp:
+      op = " - ";
+      break;
+    case V_SgModAssignOp:
+      op = " % ";
+      break;
+    case V_SgMultAssignOp:
+      op = " * ";
+      break;
+    case V_SgPlusAssignOp:
+      op = " + ";
+      break;
+    case V_SgRshiftAssignOp:
+      op = " >> ";
+      break;
+    case V_SgXorAssignOp:
+      op = " ^ ";
+      break;
+    default:
+      op = " /* UNHANDLED BINARY OPERATOR */ ";
+  }
+
+  switch(lhs->variantT()) {
+    case V_SgVarRefExp: {
+      output.addr = lhs_e.addr;
+      output.code = rhs_e.code + output.addr + " = " +
+                    output.addr + op + rhs_e.addr + ";\n";
+      break;
+    }
+    case V_SgPntrArrRefExp: {
+      SgPntrArrRefExp* p_exp = isSgPntrArrRefExp(lhs);
+      ExpressionNode e1 = translatedExpression(p_exp->get_rhs_operand());
+      output.addr = printExpression(p_exp->get_lhs_operand()) + "[" + e1.addr + "]";
+      output.code = rhs_e.code + e1.code + output.addr + " = " +
+                    output.addr + op + rhs_e.addr + ";\n";
+      break;
+    }
+    default:
+      output.addr = "";
+      output.code = "/* UNHANDLED ASSIGN OP */\n";
+  }
+
 }
 
 ExpressionNode translatedPntrArrRefExp(SgPntrArrRefExp* expr) {
