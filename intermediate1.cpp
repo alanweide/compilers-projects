@@ -546,7 +546,12 @@ string printForStmt(SgForStatement* for_stmt) {
   output = output + "for (" + printExpression(the_init->get_expression()) + "; ";
   output = output + printExpression(the_test->get_expression()) + "; ";
   output = output + printExpression(the_incr) + ")\n";
-  output = output + printStatement(the_body);
+  string body_code = printStatement(the_body);
+  if (!isSgBasicBlock(the_body)) {
+    output += "{\n" + body_code + "\n}";
+  } else {
+    output += body_code;
+  }
   return output;
 }
 
