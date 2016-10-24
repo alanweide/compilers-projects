@@ -518,7 +518,7 @@ ExpressionNode translatedCompoundAssignOp(SgBinaryOp* expr) {
       output.addr = "";
       output.code = "/* UNHANDLED ASSIGN OP */\n";
   }
-
+  return output;
 }
 
 ExpressionNode translatedPntrArrRefExp(SgPntrArrRefExp* expr) {
