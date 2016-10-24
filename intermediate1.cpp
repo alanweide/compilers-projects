@@ -191,7 +191,8 @@ ExpressionNode translatedExpression(SgExpression* expr) {
     case V_SgLessThanOp:
     case V_SgNotEqualOp: {
       SgBinaryOp* bi_expr = isSgBinaryOp(expr);
-      output += printBinaryOp(bi_expr);
+      output.code = printBinaryOp(bi_expr);
+      output.addr = "";
       break;
     }
 
