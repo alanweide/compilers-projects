@@ -189,7 +189,11 @@ ExpressionNode translatedExpression(SgExpression* expr) {
     case V_SgGreaterThanOp:
     case V_SgLessOrEqualOp:
     case V_SgLessThanOp:
-    case V_SgNotEqualOp:
+    case V_SgNotEqualOp: {
+      SgBinaryOp* bi_expr = isSgBinaryOp(expr);
+      output += printBinaryOp(bi_expr);
+      break;
+    }
 
     case V_SgAddOp:
     case V_SgAndOp:
@@ -435,7 +439,7 @@ ExpressionNode translatedAssignOp(SgBinaryOp* expr) {
       SgPntrArrRefExp* p_exp = isSgPntrArrRefExp(lhs);
       ExpressionNode e1 = translatedExpression(p_exp->get_rhs_operand());
       output.addr = printExpression(p_exp->get_lhs_operand()) + "[" + e1.addr + "]";
-      output.code = e1.code + output.addr + op + rhs_e.addr + ";\n";
+      output.code = rhs_e.code + e1.code + output.addr + op + rhs_e.addr + ";\n";
       break;
     }
     default:
