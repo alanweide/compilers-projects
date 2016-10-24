@@ -232,6 +232,7 @@ ExpressionNode translatedExpression(SgExpression* expr) {
     case V_SgXorAssignOp: {
       SgBinaryOp* ass_expr = isSgBinaryOp(expr);
       output = translatedCompoundAssignOp(ass_expr);
+      break;
     }
 
     case V_SgIntVal: {
