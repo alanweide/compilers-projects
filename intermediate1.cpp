@@ -543,7 +543,7 @@ ExpressionNode translatedPrePostOp(SgUnaryOp* expr) {
       op.code = "";
       break;
     case V_SgPntrArrRefExp:
-      op = translatedPntrArrRefExp(operand);
+      op = translatedPntrArrRefExp(isSgPntrArrRefExp(operand));
       break;
     default:
       op.code = " /* UNHANDLED -- or ++ EXPRESSION */\n";
