@@ -1,9 +1,9 @@
-#include <stdio.h>
+// #include <stdio.h>
 
 int main() {
 	int a = 4;
-	// a++;
-    // a--;
-    // int x = a++ - 4 + --a;
-
+	a++;
+    a--;
+    int x;
+    x = a++ - 4 + --a;
 }
