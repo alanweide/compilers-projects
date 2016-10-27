@@ -535,8 +535,20 @@ string printOperatorForUnaryOp(SgUnaryOp* op) {
 }
 
 ExpressionNode translatedPrePostOp(SgUnaryOp* expr) {
-  ExpressionNode out;
-  ExpressionNode op = translatedExpression(expr->get_operand());
+  ExpressionNode out, op;
+  SgExpression* operand = expr->get_operand();
+  switch (operand->variantT()) {
+    case V_SgVarRefExp:
+      op.addr = printExpression(operand);
+      op.code = "";
+      break;
+    case V_SgPntrArrRefExp:
+      op = translatedPntrArrRefExp(operand);
+      break;
+    default:
+      op.code = " /* UNHANDLED -- or ++ EXPRESSION */\n";
+  }
+
   SgPlusPlusOp* p_exp = isSgPlusPlusOp(expr);
   string oper;
   if (expr->variantT() == V_SgPlusPlusOp) {
@@ -545,9 +557,8 @@ ExpressionNode translatedPrePostOp(SgUnaryOp* expr) {
     oper = " - ";
   }
   if (expr->get_mode() == SgUnaryOp::prefix) {
-      out.addr = op.addr;
-      out.code = op.code + out.addr + " = " +
-                    out.addr + oper + "1;\n";
+    out.code = op.code + out.addr + " = " +
+               out.addr + oper + "1;\n";
   } else {
     out.addr = newTemp(expr->get_type());
     out.code = printType(expr->get_type()) + " " + out.addr + ";\n";
