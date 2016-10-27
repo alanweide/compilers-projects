@@ -540,7 +540,7 @@ ExpressionNode translatedPrePostOp(SgUnaryOp* expr) {
   switch (operand->variantT()) {
     case V_SgVarRefExp:
       // op.addr = printExpression(operand);
-      op.addr = unparseToString(operand);
+      op.addr = operand->unparseToString();
       op.code = "";
       break;
     case V_SgPntrArrRefExp:
