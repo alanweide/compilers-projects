@@ -560,7 +560,7 @@ ExpressionNode translatedPrePostOp(SgUnaryOp* expr) {
       out.code = op.code + out.addr + " = " +
                     out.addr + oper + "1;\n";
   } else {
-    out.addr = newTemp();
+    out.addr = newTemp(expr->get_type());
     out.code = printType(expr->get_type()) + " " + out.addr + ";\n";
     out.code = out.code + op.code;
     out.code = out.code + out.addr + " = " + op.addr + ";\n";
