@@ -8,7 +8,6 @@ double fft() {
   double Wr;
   double Wi;
   double ir = 0.0;
-  int a;
   for (i=0 ; i<1024 ; i++){
     data_real[i] = ir;  
     data_imag[i] = 1.0;
