@@ -516,10 +516,10 @@ ExpressionNode translatedPntrArrRefExp(SgPntrArrRefExp* expr) {
   ExpressionNode lhs = translatedExpression(expr->get_lhs_operand());
   ExpressionNode rhs = translatedExpression(expr->get_rhs_operand());
   ExpressionNode out;
-  out.addr = newTemp(expr->get_type());
-  out.code = printType(expr->get_type()) + " " + out.addr + ";\n";
+  // out.addr = newTemp(expr->get_type());
+  // out.code = printType(expr->get_type()) + " " + out.addr + ";\n";
+  out.addr = lhs.addr + "[" + rhs.addr + "]";
   out.code = out.code + lhs.code + rhs.code;
-  out.code = out.code + out.addr + " = " + lhs.addr + "[" + rhs.addr + "];\n";
   return out;
 }
 
