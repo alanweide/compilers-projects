@@ -297,23 +297,12 @@ ExpressionNode translatedExpression(SgExpression* expr) {
     case V_SgBitComplementOp: {
       SgUnaryOp* u_exp = isSgUnaryOp(expr);
       output = translatedUnaryOp(u_exp);
-    }
-    case V_SgPlusPlusOp: {
-      SgPlusPlusOp* p_exp = isSgPlusPlusOp(expr);
-      if (p_exp->get_mode() == SgUnaryOp::prefix) {
-        output.code = "++" + printExpression(p_exp->get_operand());
-      } else {
-        output.code = printExpression(p_exp->get_operand()) + "++";
-      }
       break;
     }
+    case V_SgPlusPlusOp:
     case V_SgMinusMinusOp: {
-      SgMinusMinusOp* p_exp = isSgMinusMinusOp(expr);
-      if (p_exp->get_mode() == SgUnaryOp::prefix) {
-        output.code = "--" + printExpression(p_exp->get_operand());
-      } else {
-        output.code = printExpression(p_exp->get_operand()) + "--";
-      }
+      SgUnaryOp* u_exp = isSgUnaryOp(expr);
+      output = translatedPrePostOp(u_exp);
       break;
     }
     default:
