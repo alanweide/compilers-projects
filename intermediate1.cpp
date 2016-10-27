@@ -21,6 +21,7 @@ ExpressionNode translatedBinaryOp(SgBinaryOp* expr);
 ExpressionNode translatedAssignOp(SgBinaryOp* expr);
 ExpressionNode translatedCompoundAssignOp(SgBinaryOp* expr);
 ExpressionNode translatedPntrArrRefExp(SgPntrArrRefExp* expr);
+ExpressionNode translatedPrePostOp(SgUnaryOp* expr);
 ExpressionNode translatedUnaryOp(SgUnaryOp* expr);
 string printStatement(SgStatement* stmt);
 string printForStmt(SgForStatement* for_stmt);
@@ -542,6 +543,30 @@ string printOperatorForUnaryOp(SgUnaryOp* op) {
     case V_SgBitComplementOp:
       return "~";
   }
+}
+
+ExpressionNode translatedPrePostOp(SgUnaryOp* expr) {
+  ExpressionNode out;
+  ExpressionNode op = translatedExpression(expr->get_operand());
+  SgPlusPlusOp* p_exp = isSgPlusPlusOp(expr);
+  string oper;
+  if (expr->variantT() == V_SgPlusPlusOp) {
+    oper = " + ";
+  } else {
+    oper = " - ";
+  }
+  if (expr->get_mode() == SgUnaryOp::prefix) {
+      output.addr = op.addr;
+      output.code = op.code + output.addr + " = " +
+                    output.addr + oper + "1;\n";
+  } else {
+    out.addr = newTemp();
+    out.code = printType(expr->get_type()) + " " + out.addr + ";\n";
+    out.code = out.code + op.code;
+    out.code = out.code + out.addr + " = " + op.addr + ";\n";
+    out.code = out.code + op.addr + " = " + op.addr + oper + "1;\n";
+  }
+
 }
 
 ExpressionNode translatedUnaryOp(SgUnaryOp* expr) {
