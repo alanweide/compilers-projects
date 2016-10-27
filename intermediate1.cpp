@@ -539,8 +539,8 @@ ExpressionNode translatedPrePostOp(SgUnaryOp* expr) {
   SgExpression* operand = expr->get_operand();
   switch (operand->variantT()) {
     case V_SgVarRefExp:
-      // op.addr = printExpression(operand);
-      op.addr = operand->unparseToString();
+      op.addr = printExpression(operand);
+      // op.addr = operand->unparseToString();
       op.code = "";
       break;
     case V_SgPntrArrRefExp:
