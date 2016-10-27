@@ -555,7 +555,7 @@ ExpressionNode translatedPrePostOp(SgUnaryOp* expr) {
     out.code = out.code + out.addr + " = " + op.addr + ";\n";
     out.code = out.code + op.addr + " = " + op.addr + oper + "1;\n";
   }
-
+  return out;
 }
 
 ExpressionNode translatedUnaryOp(SgUnaryOp* expr) {
