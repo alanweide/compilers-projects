@@ -4,5 +4,5 @@
 
 int main() {
 	// printf("original: %lf", originalfft());
-	printf("\ncompiled: %lf", compiledfft());
+	printf("compiled: %lf\n", compiledfft());
 }
