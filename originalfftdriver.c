@@ -1,5 +1,5 @@
 #include "modfft1.c"
 
 double originalfft() {
-	return fft(42);
+	return fft();
 }
