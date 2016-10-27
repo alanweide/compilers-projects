@@ -556,9 +556,9 @@ ExpressionNode translatedPrePostOp(SgUnaryOp* expr) {
     oper = " - ";
   }
   if (expr->get_mode() == SgUnaryOp::prefix) {
-      output.addr = op.addr;
-      output.code = op.code + output.addr + " = " +
-                    output.addr + oper + "1;\n";
+      out.addr = op.addr;
+      out.code = op.code + out.addr + " = " +
+                    out.addr + oper + "1;\n";
   } else {
     out.addr = newTemp();
     out.code = printType(expr->get_type()) + " " + out.addr + ";\n";
