@@ -4,6 +4,6 @@
 
 
 int main() {
-	cout << "original: " << originalfft();
-	cout << "\ncompiled: " << compiledfft();
+	printf("original: %lf", originalfft());
+	printf("\noriginal: %lf", compiledfft());
 }
