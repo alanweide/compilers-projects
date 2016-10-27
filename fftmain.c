@@ -3,6 +3,6 @@
 #include "compiledfftdriver.c"
 
 int main() {
-	// printf("original: %lf", originalfft());
+	// printf("original: %lf\n", originalfft());
 	printf("compiled: %lf\n", compiledfft());
 }
