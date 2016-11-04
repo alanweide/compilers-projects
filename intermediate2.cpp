@@ -3,14 +3,24 @@
 using namespace std;
 
 int curTemp = 0;
+int curLabel = 0;
 
 struct ExpressionNode
 {
   string code;
   string addr;
-}; 
+};
+
+struct StatementNode
+{
+  string code;
+  string next;
+  string trueLabel;
+  string falseLabe;
+};
 
 string newTemp();
+string newLabel();
 string printExpression(SgExpression* expr);
 ExpressionNode translatedExpression(SgExpression* expr);
 string printType(SgType* type);
@@ -24,11 +34,17 @@ ExpressionNode translatedPntrArrRefExp(SgPntrArrRefExp* expr);
 ExpressionNode translatedPrePostOp(SgUnaryOp* expr);
 ExpressionNode translatedUnaryOp(SgUnaryOp* expr);
 string printStatement(SgStatement* stmt);
+StatementNode translatedStatement(SgStatement* stmt, string next);
 string printForStmt(SgForStatement* for_stmt);
+StatementNode translatedForStmt(SgForStatement* for_stmt, string next);
 string printWhileStmt(SgWhileStmt* while_stmt);
+StatementNode translatedWhileStmt(SgWhileStmt* while_stmt, string next);
 string printDoWhileStmt(SgDoWhileStmt* dow_stmt);
+StatementNode translatedDoWhileStmt(SgDoWhileStmt* dow_stmt, string next);
 string printIfStmt(SgIfStmt* stmt);
+StatementNode translatedIfStmt(SgIfStmt* stmt, string next);
 string printBasicBlock(SgBasicBlock* block);
+StatementNode translatedBasicBlock(SgBasicBlock* block, string next);
 string printVariableDeclaration(SgVariableDeclaration* decl);
 string printArrayDec(SgSymbol *symbol);
 string printFunctionDeclaration(SgFunctionDeclaration* decl);
@@ -38,6 +54,13 @@ string newTemp(SgType* type) {
   curTemp++;
   ostringstream output;
   output << "_t" << curTemp;
+  return output.str();
+}
+
+string newLabel() {
+  curLabel++;
+  ostringstream output;
+  output << "L" << curLabel;
   return output.str();
 }
 
@@ -185,6 +208,15 @@ string printExpression(SgExpression* expr) {
 
 ExpressionNode translatedExpression(SgExpression* expr) {
   ExpressionNode output;
+
+    //   Relational ops:
+    //   SgBinaryOp* bi_expr = isSgBinaryOp(expr);
+    //   output.code = "/* Not required to translate relational operator */\n" + 
+    //                 printBinaryOp(bi_expr);
+    //   output.addr = "";
+    //   break;
+    // }
+
   switch(expr->variantT()) {
     case V_SgEqualityOp:
     case V_SgGreaterOrEqualOp:
@@ -192,13 +224,6 @@ ExpressionNode translatedExpression(SgExpression* expr) {
     case V_SgLessOrEqualOp:
     case V_SgLessThanOp:
     case V_SgNotEqualOp: {
-      SgBinaryOp* bi_expr = isSgBinaryOp(expr);
-      output.code = "/* Not required to translate relational operator */\n" + 
-                    printBinaryOp(bi_expr);
-      output.addr = "";
-      break;
-    }
-
     case V_SgAddOp:
     case V_SgAndOp:
     case V_SgBitAndOp:
@@ -634,6 +659,66 @@ string printStatement(SgStatement* stmt) {
     return output;
 }
 
+StatementNode printStatement(SgStatement* stmt, string next) {
+  StatementNode s;
+  s.next = next;
+  switch(stmt->variantT()) {
+    case V_SgVariableDeclaration: {
+      SgVariableDeclaration* d_stmt = isSgVariableDeclaration(stmt);
+      s.code = s.code + printVariableDeclaration(d_stmt) + ";\n";
+      break;
+     }
+    case V_SgExprStatement: {
+      SgExprStatement* e_stmt = isSgExprStatement(stmt);
+      ExpressionNode e = translatedExpression(e_stmt->get_expression());
+      s.code = s.code + e.code;
+      break;
+     }
+    case V_SgReturnStmt: {
+      SgReturnStmt* r_stmt = isSgReturnStmt(stmt);
+      ExpressionNode e = translatedExpression(r_stmt->get_expression());
+      s.code = s.code + e.code;
+      s.code = s.code + "return " + e.addr + ";\n";
+      break;
+     }
+    case V_SgIfStmt: {
+      SgIfStmt* i_stmt = isSgIfStmt(stmt);
+      StatementNode i = translatedIfStmt(i_stmt, next);
+      s.code = s.code + i.code;
+      break;
+     }
+    case V_SgWhileStmt: {
+      SgWhileStmt* while_stmt = isSgWhileStmt(stmt);
+      StatementNode w = translatedWhileStmt(while_stmt, next);
+      s.code = s.code + w.code;
+      break;
+     }
+    case V_SgDoWhileStmt: {
+      SgDoWhileStmt* while_stmt = isSgDoWhileStmt(stmt);
+      StatementNode d = translatedDoWhileStmt(while_stmt, next);
+      s.code = s.code + d.code;
+      break;
+     }
+    case V_SgForStatement: {
+      SgForStatement* for_stmt = isSgForStatement(stmt);
+      StatementNode f = translatedForStmt(for_stmt, next);
+      s.code = s.code + f.code;
+      break;
+     }
+    case V_SgBasicBlock: {
+      SgBasicBlock* block = isSgBasicBlock(stmt);
+      StatementNode b = translatedBasicBlock(block, next);
+      s.code = s.code + b.code;
+      break;
+     }
+    default:
+      s.code = "/*UNHANDLED " + stmt->class_name() + "*/\n";// + stmt->unparseToString() + ";\n";
+      break;
+  }
+  s.code = 
+  return s;
+}
+
 string printForStmt(SgForStatement* for_stmt) {
   string output = "";
   SgForInitStatement* init_stmt = for_stmt->get_for_init_stmt();
@@ -654,6 +739,26 @@ string printForStmt(SgForStatement* for_stmt) {
   return output;
 }
 
+StatementNode translatedForStmt(SgForStatement* for_stmt, string next) {
+  StatementNode s;
+  SgForInitStatement* init_stmt = for_stmt->get_for_init_stmt();
+  SgStatementPtrList& init_stmt_list = init_stmt->get_init_stmt();
+  SgExprStatement* the_init = isSgExprStatement(*init_stmt_list.begin());
+  SgExprStatement* the_test = isSgExprStatement(for_stmt->get_test());
+  SgExpression* the_incr = for_stmt->get_increment();
+  SgStatement* the_body = for_stmt->get_loop_body();
+  s.code = s.code + "for (" + printExpression(the_init->get_expression()) + "; ";
+  s.code = s.code + printExpression(the_test->get_expression()) + "; ";
+  s.code = s.code + printExpression(the_incr) + ")\n";
+  string body_code = printStatement(the_body);
+  if (!isSgBasicBlock(the_body)) {
+    s.code += "{\n" + body_code + "\n}";
+  } else {
+    s.code += body_code;
+  }
+  return s;
+}
+
 string printWhileStmt(SgWhileStmt* while_stmt) {
   string output = "";
   SgExprStatement* the_test = isSgExprStatement(while_stmt->get_condition());
@@ -663,6 +768,15 @@ string printWhileStmt(SgWhileStmt* while_stmt) {
   return output;
 }
 
+StatementNode translatedWhileStmt(SgWhileStmt* while_stmt, string next) {
+  StatementNode s;
+  SgExprStatement* the_test = isSgExprStatement(while_stmt->get_condition());
+  SgStatement* the_body = while_stmt->get_body();
+  s.code = s.code + "while(" + printExpression(the_test->get_expression()) + ")\n";
+  s.code = s.code + printStatement(the_body);
+  return s;
+}
+
 string printDoWhileStmt(SgDoWhileStmt* dow_stmt) {
   string output = "";
   SgExprStatement* the_test = isSgExprStatement(dow_stmt->get_condition());
@@ -670,6 +784,15 @@ string printDoWhileStmt(SgDoWhileStmt* dow_stmt) {
   output = output + "do\n" + printStatement(the_body);
   output = output + "while (" + printExpression(the_test->get_expression()) + ");\n";
   return output;
+}
+
+StatementNode translatedDoWhileStmt(SgDoWhileStmt* dow_stmt, string next) {
+  StatementNode s;
+  SgExprStatement* the_test = isSgExprStatement(dow_stmt->get_condition());
+  SgStatement* the_body = dow_stmt->get_body();
+  s.code = s.code + "do\n" + printStatement(the_body);
+  s.code = s.code + "while (" + printExpression(the_test->get_expression()) + ");\n";
+  return s;
 }
 
 string printIfStmt(SgIfStmt* stmt) {
@@ -686,6 +809,20 @@ string printIfStmt(SgIfStmt* stmt) {
   return output;
 }
 
+StatementNode translatedIfStmt(SgIfStmt* stmt, string next) {
+  StatementNode s;
+  SgExprStatement* condition = isSgExprStatement(stmt->get_conditional());
+  SgStatement* true_body = isSgStatement(stmt->get_true_body());
+  SgStatement* false_body = isSgStatement(stmt->get_false_body());
+  s.code = s.code + "if (" + printExpression(condition->get_expression()) + ")\n";
+  s.code = s.code + printStatement(true_body);
+  if (false_body) {
+    s.code = s.code + "else\n";
+    s.code = s.code + printStatement(false_body);
+  }
+  return s;
+}
+
 string printBasicBlock(SgBasicBlock* block) {
   string output = "{\n";
   SgStatementPtrList& stmt_list = block->get_statements();
@@ -696,6 +833,21 @@ string printBasicBlock(SgBasicBlock* block) {
   }
   output = output + "}\n";
   return output;
+}
+
+StatementNode translatedBasicBlock(SgBasicBlock* block, string next) {
+  StatementNode s;
+  s.code = "{\n";
+  s.next = next;
+  SgStatementPtrList& stmt_list = block->get_statements();
+  SgStatementPtrList::const_iterator iter;
+  for (iter=stmt_list.begin(); iter != stmt_list.end(); iter++) {
+    SgStatement* stmt = *iter;
+    StatementNode sn = translatedStatement(stmt, next);
+    s.code = s.code + printStatement(stmt);
+  }
+  s.code = s.code + "}\n";
+  return s;
 }
 
 string printVariableDeclaration(SgVariableDeclaration* decl) {
@@ -742,7 +894,8 @@ string printFunctionDeclaration(SgFunctionDeclaration* decl) {
 
     SgBasicBlock* body = def->get_body();
     SgStatementPtrList& stmt_list = body->get_statements();
-    output = output + printBasicBlock(body);
+    StatementNode b = translatedBasicBlock(body, newLabel());
+    output = output + b.code;
   } else if (symbol) {
     // output = "// Function " + symbol->get_name().getString() + " has no body; assuming a builtin or included function.\n";
   } else {
