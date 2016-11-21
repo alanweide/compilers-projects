@@ -7,6 +7,8 @@ int main() {
 		int z;
 		z = x + y;
 		y = z;
+	} else {
+		x = y - x;
 	}
 	return 4;
 }
