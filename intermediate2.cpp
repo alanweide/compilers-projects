@@ -829,6 +829,7 @@ StatementNode translatedIfStmt(SgIfStmt* stmt, string next) {
   s.code = s.code + "goto " + s.falseLabel + ";\n";
   s.code = s.code + s.trueLabel + ": " + translatedStatement(true_body, next).code;
   if (false_body) {
+    s.code = s.code + "goto " + s.next + ";\n";
     s.code = s.code + s.falseLabel + ": " + translatedStatement(false_body, next).code;
   } 
   s.code = s.code + next + ": ;\n";
