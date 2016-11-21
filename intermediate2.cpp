@@ -782,7 +782,7 @@ StatementNode translatedWhileStmt(SgWhileStmt* while_stmt, string next) {
 
   s.code = begin + ": " + cond.code + "if (" + cond.addr + ") goto " + s.trueLabel + ";\n";
   s.code = s.code + "goto " + s.next + ";\n";
-  s.code = s.code + s.trueLabel + ": " + body_node.code;
+  s.code = s.code + s.trueLabel + ": " + body_node.code + "goto " + begin + ";\n";
   s.code = s.code + next + ": ;\n";
   return s;
 }
