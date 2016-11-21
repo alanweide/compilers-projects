@@ -772,10 +772,18 @@ string printWhileStmt(SgWhileStmt* while_stmt) {
 StatementNode translatedWhileStmt(SgWhileStmt* while_stmt, string next) {
   StatementNode s;
   s.next = next;
+  string begin = newLabel();
+  s.trueLabel = newLabel();
+  s.falseLabel = next;
   SgExprStatement* the_test = isSgExprStatement(while_stmt->get_condition());
+  ExpressionNode cond = translatedExpression(the_test->get_expression());
   SgStatement* the_body = while_stmt->get_body();
-  s.code = s.code + "while(" + printExpression(the_test->get_expression()) + ")\n";
-  s.code = s.code + printStatement(the_body);
+  StatementNode body_node = translatedStatement(the_body, begin);
+
+  s.code = begin + ": " + cond.code + "if (" + cond.addr + ") goto " + s.trueLabel + ";\n";
+  s.code = s.code + "goto " + s.next + ";\n";
+  s.code = s.code + s.trueLabel + ": " + body_node.code;
+  s.code = s.code + next + ": ;\n";
   return s;
 }
 
@@ -798,19 +806,19 @@ StatementNode translatedDoWhileStmt(SgDoWhileStmt* dow_stmt, string next) {
   return s;
 }
 
-// string printIfStmt(SgIfStmt* stmt) {
-//   string output = "";
-//   SgExprStatement* condition = isSgExprStatement(stmt->get_conditional());
-//   SgStatement* true_body = isSgStatement(stmt->get_true_body());
-//   SgStatement* false_body = isSgStatement(stmt->get_false_body());
-//   output = output + "if (" + printExpression(condition->get_expression()) + ")\n";
-//   output = output + printStatement(true_body);
-//   if (false_body) {
-//     output = output + "else\n";
-//     output = output + printStatement(false_body);
-//   }
-//   return output;
-// }
+string printIfStmt(SgIfStmt* stmt) {
+  string output = "";
+  SgExprStatement* condition = isSgExprStatement(stmt->get_conditional());
+  SgStatement* true_body = isSgStatement(stmt->get_true_body());
+  SgStatement* false_body = isSgStatement(stmt->get_false_body());
+  output = output + "if (" + printExpression(condition->get_expression()) + ")\n";
+  output = output + printStatement(true_body);
+  if (false_body) {
+    output = output + "else\n";
+    output = output + printStatement(false_body);
+  }
+  return output;
+}
 
 StatementNode translatedIfStmt(SgIfStmt* stmt, string next) {
   StatementNode s;
