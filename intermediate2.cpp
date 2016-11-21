@@ -223,7 +223,7 @@ ExpressionNode translatedExpression(SgExpression* expr) {
     case V_SgGreaterThanOp:
     case V_SgLessOrEqualOp:
     case V_SgLessThanOp:
-    case V_SgNotEqualOp: {
+    case V_SgNotEqualOp:
     case V_SgAddOp:
     case V_SgAndOp:
     case V_SgBitAndOp:
