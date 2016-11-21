@@ -853,7 +853,7 @@ StatementNode translatedBasicBlock(SgBasicBlock* block, string next) {
   for (iter=stmt_list.begin(); iter != stmt_list.end(); iter++) {
     SgStatement* stmt = *iter;
     StatementNode sn = translatedStatement(stmt, next);
-    s.code = s.code + printStatement(stmt);
+    s.code = s.code + sn.code;
   }
   s.code = s.code + "}\n";
   return s;
