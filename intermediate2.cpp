@@ -659,7 +659,7 @@ string printStatement(SgStatement* stmt) {
     return output;
 }
 
-StatementNode printStatement(SgStatement* stmt, string next) {
+StatementNode translatedStatement(SgStatement* stmt, string next) {
   StatementNode s;
   s.next = next;
   switch(stmt->variantT()) {
