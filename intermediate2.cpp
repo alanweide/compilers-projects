@@ -715,7 +715,7 @@ StatementNode printStatement(SgStatement* stmt, string next) {
       s.code = "/*UNHANDLED " + stmt->class_name() + "*/\n";// + stmt->unparseToString() + ";\n";
       break;
   }
-  s.code = 
+  
   return s;
 }
 
