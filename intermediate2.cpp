@@ -602,7 +602,7 @@ ExpressionNode translatedUnaryOp(SgUnaryOp* expr) {
   out.addr = newTemp(expr->get_type());
   string oper = printOperatorForUnaryOp(expr);
   out.code = printType(expr->get_type()) + " " + out.addr + ";\n";
-  out.code = out.code + op.code + out.addr + " = " + oper + op.addr;
+  out.code = out.code + op.code + out.addr + " = " + oper + op.addr + ";\n";
   return out;
 }
 
