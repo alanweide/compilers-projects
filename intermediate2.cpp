@@ -815,6 +815,7 @@ string printIfStmt(SgIfStmt* stmt) {
 StatementNode translatedIfStmt(SgIfStmt* stmt, string next) {
   StatementNode s;
   s.next = next;
+  s.trueLabel = newLabel();
   SgExprStatement* condition = isSgExprStatement(stmt->get_conditional());
   SgStatement* true_body = isSgStatement(stmt->get_true_body());
   SgStatement* false_body = isSgStatement(stmt->get_false_body());
