@@ -822,14 +822,16 @@ StatementNode translatedIfStmt(SgIfStmt* stmt, string next) {
   ExpressionNode cond = translatedExpression(condition->get_expression());
   if (false_body) {
     s.falseLabel = newLabel();
-    s.code = s.code + "else\n";
-    s.code = s.code + translatedStatement(false_body, next).code;
   } else {
     s.falseLabel = next;
   }
   s.code = cond.code + "if (" + cond.addr + ") goto " + s.trueLabel + ";\n";
   s.code = s.code + "goto " + s.falseLabel + ";\n";
-  s.code = s.code + s.trueLabel + ": " + translatedStatement(true_body, next).code + next + ": ;\n";
+  s.code = s.code + s.trueLabel + ": " + translatedStatement(true_body, next).code;
+  if (false_body) {
+    s.code = s.code + s.falseLabel + ": " translatedStatement(false_body, next).code;
+  } 
+  s.code = s.code + next + ": ;\n";
   return s;
 }
 
