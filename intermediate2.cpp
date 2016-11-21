@@ -16,7 +16,7 @@ struct StatementNode
   string code;
   string next;
   string trueLabel;
-  string falseLabe;
+  string falseLabel;
 };
 
 string newTemp();
@@ -60,7 +60,7 @@ string newTemp(SgType* type) {
 string newLabel() {
   curLabel++;
   ostringstream output;
-  output << "L" << curLabel;
+  output << "_L" << curLabel;
   return output.str();
 }
 
@@ -741,6 +741,7 @@ string printForStmt(SgForStatement* for_stmt) {
 
 StatementNode translatedForStmt(SgForStatement* for_stmt, string next) {
   StatementNode s;
+  s.next = next;
   SgForInitStatement* init_stmt = for_stmt->get_for_init_stmt();
   SgStatementPtrList& init_stmt_list = init_stmt->get_init_stmt();
   SgExprStatement* the_init = isSgExprStatement(*init_stmt_list.begin());
@@ -770,6 +771,7 @@ string printWhileStmt(SgWhileStmt* while_stmt) {
 
 StatementNode translatedWhileStmt(SgWhileStmt* while_stmt, string next) {
   StatementNode s;
+  s.next = next;
   SgExprStatement* the_test = isSgExprStatement(while_stmt->get_condition());
   SgStatement* the_body = while_stmt->get_body();
   s.code = s.code + "while(" + printExpression(the_test->get_expression()) + ")\n";
@@ -788,6 +790,7 @@ string printDoWhileStmt(SgDoWhileStmt* dow_stmt) {
 
 StatementNode translatedDoWhileStmt(SgDoWhileStmt* dow_stmt, string next) {
   StatementNode s;
+  s.next = next;
   SgExprStatement* the_test = isSgExprStatement(dow_stmt->get_condition());
   SgStatement* the_body = dow_stmt->get_body();
   s.code = s.code + "do\n" + printStatement(the_body);
@@ -811,15 +814,21 @@ string printIfStmt(SgIfStmt* stmt) {
 
 StatementNode translatedIfStmt(SgIfStmt* stmt, string next) {
   StatementNode s;
+  s.next = next;
   SgExprStatement* condition = isSgExprStatement(stmt->get_conditional());
   SgStatement* true_body = isSgStatement(stmt->get_true_body());
   SgStatement* false_body = isSgStatement(stmt->get_false_body());
-  s.code = s.code + "if (" + printExpression(condition->get_expression()) + ")\n";
-  s.code = s.code + printStatement(true_body);
+  ExpressionNode cond = translatedExpression(condition->get_expression());
   if (false_body) {
+    s.falseLabel = newLabel();
     s.code = s.code + "else\n";
-    s.code = s.code + printStatement(false_body);
+    s.code = s.code + translatedStatement(false_body, next).code;
+  } else {
+    s.falseLabel = next;
   }
+  s.code = cond.code + "if (" + cond.addr + ") goto " + s.trueLabel + ";\n";
+  s.code = s.code + "goto " + s.falseLabel + ";\n";
+  s.code = s.code + s.trueLabel + ": " + translatedStatement(true_body, next).code + next + ": ;\n";
   return s;
 }
 
