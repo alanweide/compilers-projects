@@ -767,9 +767,9 @@ StatementNode translatedForStmt(SgForStatement* for_stmt, string next) {
 
   StatementNode body_stmt = translatedStatement(the_body, begin);
 
-  s.code = begin + ": ;\n" + test_expr.code + "if (" + test_expr.addr + ") goto " + s.trueLabel + ";\n";
+  s.code = begin + ": " + test_expr.code + "if (" + test_expr.addr + ") goto " + s.trueLabel + ";\n";
   s.code = s.code + "goto " + s.next + ";\n";
-  s.code = s.code + s.trueLabel + ": ;\n" + body_stmt.code;
+  s.code = s.code + s.trueLabel + ": " + body_stmt.code;
   s.code = s.code + incr_expr.code + "goto " + begin + ";\n";
   // s.code = s.code + next + ": ;\n";
 
@@ -796,7 +796,7 @@ StatementNode translatedWhileStmt(SgWhileStmt* while_stmt, string next) {
   SgStatement* the_body = while_stmt->get_body();
   StatementNode body_node = translatedStatement(the_body, begin);
 
-  s.code = begin + ": ;\n" + cond.code + "if (" + cond.addr + ") goto " + s.trueLabel + ";\n";
+  s.code = begin + ": " + cond.code + "if (" + cond.addr + ") goto " + s.trueLabel + ";\n";
   s.code = s.code + "goto " + s.next + ";\n";
   s.code = s.code + s.trueLabel + ": " + body_node.code + "goto " + begin + ";\n";
   // s.code = s.code + next + ": ;\n";
@@ -904,6 +904,8 @@ string printVariableDeclaration(SgVariableDeclaration* decl) {
     SgInitializer* init_expr = name->get_initializer();
     if (init_expr) {
       output = output + " = " + printExpression(init_expr);
+    } else {
+      output = output + " = 0";
     }
   }
   return output;
