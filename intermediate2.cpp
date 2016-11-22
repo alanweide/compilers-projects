@@ -771,7 +771,7 @@ StatementNode translatedForStmt(SgForStatement* for_stmt, string next) {
   s.code = s.code + "goto " + s.next + ";\n";
   s.code = s.code + s.trueLabel + ": ;\n" + body_stmt.code;
   s.code = s.code + incr_expr.code + "goto " + begin + ";\n";
-  s.code = s.code + next + ": ;\n";
+  // s.code = s.code + next + ": ;\n";
 
   return s;
 }
@@ -799,7 +799,7 @@ StatementNode translatedWhileStmt(SgWhileStmt* while_stmt, string next) {
   s.code = begin + ": ;\n" + cond.code + "if (" + cond.addr + ") goto " + s.trueLabel + ";\n";
   s.code = s.code + "goto " + s.next + ";\n";
   s.code = s.code + s.trueLabel + ": " + body_node.code + "goto " + begin + ";\n";
-  s.code = s.code + next + ": ;\n";
+  // s.code = s.code + next + ": ;\n";
   return s;
 }
 
@@ -856,7 +856,7 @@ StatementNode translatedIfStmt(SgIfStmt* stmt, string next) {
     s.code = s.code + "goto " + s.next + ";\n";
     s.code = s.code + s.falseLabel + ": " + translatedStatement(false_body, next).code;
   } 
-  s.code = s.code + next + ": ;\n";
+  // s.code = s.code + next + ": ;\n";
   return s;
 }
 
@@ -880,8 +880,9 @@ StatementNode translatedBasicBlock(SgBasicBlock* block, string next) {
   SgStatementPtrList::const_iterator iter;
   for (iter=stmt_list.begin(); iter != stmt_list.end(); iter++) {
     SgStatement* stmt = *iter;
-    StatementNode sn = translatedStatement(stmt, next);
-    s.code = s.code + sn.code;
+    string newNext = newLabel();
+    StatementNode sn = translatedStatement(stmt, newNext);
+    s.code = s.code + sn.code + newNext + ": ;\n";
   }
   // s.code = s.code + "}\n";
   return s;
