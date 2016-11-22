@@ -4,10 +4,11 @@ int main() {
 	x = 44;
 	y = x + 73;
 	int i,j;
+	int z;
 	for (i = 0; i < x; i++) {
 		for (j = 0; j < y; j++) {
-			x = x + y;
+			z = -z;
 		}
 	}
-	return 4;
+	return z;
 }
