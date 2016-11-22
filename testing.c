@@ -4,10 +4,10 @@ int main() {
 	x = 44;
 	y = x + 73;
 	int i,j;
-	int z;
+	int z = 2;
 	for (i = 0; i < x; i++) {
 		for (j = 0; j < y; j++) {
-			z = -z;
+			z *= -1;
 		}
 	}
 	return z;

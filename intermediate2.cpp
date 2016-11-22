@@ -767,7 +767,8 @@ StatementNode translatedForStmt(SgForStatement* for_stmt, string next) {
 
   StatementNode body_stmt = translatedStatement(the_body, begin);
 
-  s.code = begin + ": ;\n" + test_expr.code + "if (" + test_expr.addr + ") goto " + s.trueLabel + ";\n";
+  s.code = init_expr.code;
+  s.code = s.code + begin + ": ;\n" + test_expr.code + "if (" + test_expr.addr + ") goto " + s.trueLabel + ";\n";
   s.code = s.code + "goto " + s.next + ";\n";
   s.code = s.code + s.trueLabel + ": ;\n" + body_stmt.code;
   s.code = s.code + incr_expr.code + "goto " + begin + ";\n";
