@@ -873,7 +873,7 @@ string printBasicBlock(SgBasicBlock* block) {
 
 StatementNode translatedBasicBlock(SgBasicBlock* block, string next) {
   StatementNode s;
-  s.code = "{\n";
+  // s.code = "{\n";
   s.next = next;
   SgStatementPtrList& stmt_list = block->get_statements();
   SgStatementPtrList::const_iterator iter;
@@ -882,7 +882,7 @@ StatementNode translatedBasicBlock(SgBasicBlock* block, string next) {
     StatementNode sn = translatedStatement(stmt, next);
     s.code = s.code + sn.code;
   }
-  s.code = s.code + "}\n";
+  // s.code = s.code + "}\n";
   return s;
 }
 
