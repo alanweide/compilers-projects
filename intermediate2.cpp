@@ -926,12 +926,12 @@ string printFunctionDeclaration(SgFunctionDeclaration* decl) {
   SgFunctionDefinition* def = decl->get_definition();
   if (def) {
     SgFunctionDeclaration* f_decl = def->get_declaration();
-    output = printType(f_decl->get_orig_return_type()) + " " + f_decl->get_name().getString() + "()\n";
+    output = printType(f_decl->get_orig_return_type()) + " " + f_decl->get_name().getString() + "()\n{\n";
 
     SgBasicBlock* body = def->get_body();
     SgStatementPtrList& stmt_list = body->get_statements();
     StatementNode b = translatedBasicBlock(body, newLabel());
-    output = output + b.code;
+    output = output + b.code + "}\n";
   } else if (symbol) {
     // output = "// Function " + symbol->get_name().getString() + " has no body; assuming a builtin or included function.\n";
   } else {
