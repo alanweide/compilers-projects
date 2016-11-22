@@ -3,9 +3,9 @@ int main() {
 	int y;
 	x = 44;
 	y = x + 73;
-	while (x > 0) {
-		x--;
-		y *= -x;
+	int i;
+	for (i = 0; i < x; i++) {
+		x = x + y;
 	}
 	return 4;
 }

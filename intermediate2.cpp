@@ -748,15 +748,30 @@ StatementNode translatedForStmt(SgForStatement* for_stmt, string next) {
   SgExprStatement* the_test = isSgExprStatement(for_stmt->get_test());
   SgExpression* the_incr = for_stmt->get_increment();
   SgStatement* the_body = for_stmt->get_loop_body();
-  s.code = s.code + "for (" + printExpression(the_init->get_expression()) + "; ";
-  s.code = s.code + printExpression(the_test->get_expression()) + "; ";
-  s.code = s.code + printExpression(the_incr) + ")\n";
-  string body_code = printStatement(the_body);
-  if (!isSgBasicBlock(the_body)) {
-    s.code += "{\n" + body_code + "\n}";
-  } else {
-    s.code += body_code;
-  }
+  // s.code = s.code + "for (" + printExpression(the_init->get_expression()) + "; ";
+  // s.code = s.code + printExpression(the_test->get_expression()) + "; ";
+  // s.code = s.code + printExpression(the_incr) + ")\n";
+  // string body_code = printStatement(the_body);
+  // if (!isSgBasicBlock(the_body)) {
+  //   s.code += "{\n" + body_code + "\n}";
+  // } else {
+  //   s.code += body_code;
+  // }
+  ExpressionNode init_expr = translatedExpression(the_init->get_expression());
+  ExpressionNode test_expr = translatedExpression(the_test->get_expression());
+  ExpressionNode incr_expr = translatedExpression(the_incr);
+
+  string begin = newLabel();
+  s.trueLabel = newLabel();
+  s.falseLabel = next;
+
+  StatementNode body_stmt = translatedStatement(the_body, begin);
+
+  s.code = begin + ": " + test_expr.code + "if (" + test_expr.addr + ") goto " + s.trueLabel + ";\n";
+  s.code = s.code + "goto " + s.next + ";\n";
+  s.code = s.code + trueLabel + ": " + body_stmt.code;
+  s.code = s.code + incr_expr.code + "goto " + begin + ";\n";
+
   return s;
 }
 
