@@ -882,7 +882,7 @@ StatementNode translatedBasicBlock(SgBasicBlock* block, string next) {
     SgStatement* stmt = *iter;
     string newNext = newLabel();
     StatementNode sn = translatedStatement(stmt, newNext);
-    s.code = s.code + sn.code + newNext + ": ;\n";
+    s.code = s.code + sn.code + newNext + ": ";
   }
   // s.code = s.code + "}\n";
   return s;
