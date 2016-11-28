@@ -459,17 +459,19 @@ BooleanNode translatedBooleanOp(SgExpression* expr, string _true, string _false)
   out._false = _false;
   SgBinaryOp* binOp = isSgBinaryOp(expr);
   switch (expr->variantT()) {
-    case V_SgAndOp:
+    case V_SgAndOp: {
       BooleanNode lhs = translatedBooleanOp(binOp->get_lhs_operand(), newLabel(), _false);
       BooleanNode rhs = translatedBooleanOp(binOp->get_rhs_operand(), _true, _false);
       out.code = out.code + lhs.code + lhs._true + ": ;\n" + rhs.code;
       break;
-    case V_SgOrOp:
+    }
+    case V_SgOrOp: {
       BooleanNode lhs = translatedBooleanOp(binOp->get_lhs_operand(), _true, newLabel());
       BooleanNode rhs = translatedBooleanOp(binOp->get_rhs_operand(), _true, _false);
       out.code = out.code + lhs.code + lhs._false + ": ;\n" + rhs.code;
       break;
-    default:
+    }
+    default: {
       ExpressionNode lhs = translatedExpression(binOp->get_lhs_operand());
       ExpressionNode rhs = translatedExpression(binOp->get_rhs_operand());
       out.code = out.code + lhs.code + rhs.code;
@@ -477,6 +479,7 @@ BooleanNode translatedBooleanOp(SgExpression* expr, string _true, string _false)
       out.code = out.code + lhs.addr + printOperatorForBinaryOp(binOp) + rhs.addr;
       out.code = out.code + ") goto " + _true + ";\n" + "goto " + _false + ";\n";
       break;
+    }
   }
   return out;
 }
