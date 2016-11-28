@@ -457,6 +457,7 @@ BooleanNode translatedBooleanOp(SgExpression* expr, string _true, string _false)
   BooleanNode out;
   out._true = _true;
   out._false = _false;
+  SgBinaryOp* binOp = isSgBinaryOp(expr);
   switch (expr->variantT()) {
     case V_SgAndOp:
       // Short-circuit eval
