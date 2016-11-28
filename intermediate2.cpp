@@ -11,12 +11,17 @@ struct ExpressionNode
   string addr;
 };
 
+struct BooleanNode
+{
+  string code;
+  string _true;
+  string _false;
+};
+
 struct StatementNode
 {
   string code;
   string next;
-  string trueLabel;
-  string falseLabel;
 };
 
 string newTemp();
@@ -28,6 +33,7 @@ string printOperatorForBinaryOp(SgBinaryOp* op);
 string printOperatorForUnaryOp(SgUnaryOp* op);
 string printBinaryOp(SgBinaryOp* expr);
 ExpressionNode translatedBinaryOp(SgBinaryOp* expr);
+BooleanNode translatedBooleanOp(SgBinaryOp* expr, string _true, string _false);
 ExpressionNode translatedAssignOp(SgBinaryOp* expr);
 ExpressionNode translatedCompoundAssignOp(SgBinaryOp* expr);
 ExpressionNode translatedPntrArrRefExp(SgPntrArrRefExp* expr);
@@ -208,6 +214,7 @@ string printExpression(SgExpression* expr) {
 
 ExpressionNode translatedExpression(SgExpression* expr) {
   ExpressionNode output;
+  output.isBoolean = false;
 
     //   Relational ops:
     //   SgBinaryOp* bi_expr = isSgBinaryOp(expr);
@@ -442,6 +449,29 @@ ExpressionNode translatedBinaryOp(SgBinaryOp* expr) {
   out.code = printType(expr->get_type()) + " " + out.addr + ";\n";
   out.code = out.code + lhs.code + rhs.code;
   out.code = out.code + out.addr + " = " + lhs.addr + printOperatorForBinaryOp(expr) + rhs.addr + ";\n";
+  return out;
+}
+
+BooleanNode translatedBooleanOp(SgBinaryOp* expr, string _true, string _false) {
+  BooleanNode out;
+  switch (expr->variantT()) {
+    case V_SgAndOp:
+      // Short-circuit eval
+      break;
+    case V_SgOrOp:
+      // short-circuit eval
+      break;
+    default:
+      ExpressionNode lhs = translatedExpression(expr->get_lhs_operand());
+      ExpressionNode rhs = translatedExpression(expr->get_rhs_operand());
+      out.addr = newTemp(expr->get_type());
+      out.code = printType(expr->get_type()) + " " + out.addr + ";\n";
+      out.code = out.code + lhs.code + rhs.code;
+      out.code = out.code + "if (";
+      out.code = out.code + lhs.addr + printOperatorForBinaryOp(expr) + rhs.addr;
+      out.code = out.code + ") goto " + _true + ";\n" + "goto " + _false + ";\n";
+      break;
+  }
   return out;
 }
 
@@ -788,18 +818,17 @@ string printWhileStmt(SgWhileStmt* while_stmt) {
 
 StatementNode translatedWhileStmt(SgWhileStmt* while_stmt, string next) {
   StatementNode s;
+  BooleanNode b;
+  string loopHead = newLabel();
   s.next = next;
   string begin = newLabel();
-  s.trueLabel = newLabel();
-  s.falseLabel = next;
   SgExprStatement* the_test = isSgExprStatement(while_stmt->get_condition());
-  ExpressionNode cond = translatedExpression(the_test->get_expression());
+  b = translatedBooleanExpression(the_test->get_expression(), loopHead, next);
   SgStatement* the_body = while_stmt->get_body();
   StatementNode body_node = translatedStatement(the_body, begin);
 
-  s.code = begin + ": ;\n" + cond.code + "if (" + cond.addr + ") goto " + s.trueLabel + ";\n";
-  s.code = s.code + "goto " + s.next + ";\n";
-  s.code = s.code + s.trueLabel + ": " + body_node.code + "goto " + begin + ";\n";
+  s.code = begin + ": ;\n" + b.code;
+  s.code = s.code + b._true + ": " + body_node.code + "goto " + begin + ";\n";
   // s.code = s.code + next + ": ;\n";
   return s;
 }
@@ -840,19 +869,18 @@ string printIfStmt(SgIfStmt* stmt) {
 StatementNode translatedIfStmt(SgIfStmt* stmt, string next) {
   StatementNode s;
   s.next = next;
-  s.trueLabel = newLabel();
+  string _true = newLabel();
+  string _false;
+  if (false_body) {
+    _false = newLabel();
+  } else {
+    _false = next;
+  }
   SgExprStatement* condition = isSgExprStatement(stmt->get_conditional());
   SgStatement* true_body = isSgStatement(stmt->get_true_body());
   SgStatement* false_body = isSgStatement(stmt->get_false_body());
-  ExpressionNode cond = translatedExpression(condition->get_expression());
-  if (false_body) {
-    s.falseLabel = newLabel();
-  } else {
-    s.falseLabel = next;
-  }
-  s.code = cond.code + "if (" + cond.addr + ") goto " + s.trueLabel + ";\n";
-  s.code = s.code + "goto " + s.falseLabel + ";\n";
-  s.code = s.code + s.trueLabel + ": " + translatedStatement(true_body, next).code;
+  BooleanNode cond = translatedBooleanOp(condition->get_expression());
+  s.code = cond.code + s.trueLabel + ": " + translatedStatement(true_body, next).code;
   if (false_body) {
     s.code = s.code + "goto " + s.next + ";\n";
     s.code = s.code + s.falseLabel + ": " + translatedStatement(false_body, next).code;
