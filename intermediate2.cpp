@@ -789,19 +789,16 @@ StatementNode translatedForStmt(SgForStatement* for_stmt, string next) {
   // } else {
   //   s.code += body_code;
   // }
-  ExpressionNode init_expr = translatedExpression(the_init->get_expression());
-  ExpressionNode test_expr = translatedExpression(the_test->get_expression());
-  ExpressionNode incr_expr = translatedExpression(the_incr);
 
   string begin = newLabel();
-  s.trueLabel = newLabel();
-  s.falseLabel = next;
+
+  ExpressionNode init_expr = translatedExpression(the_init->get_expression());
+  BooleanNode test_expr = translatedBooleanOp(the_test->get_expression(), newLabel(), next);
+  ExpressionNode incr_expr = translatedExpression(the_incr);
 
   StatementNode body_stmt = translatedStatement(the_body, begin);
 
-  s.code = init_expr.code;
-  s.code = s.code + begin + ": ;\n" + test_expr.code + "if (" + test_expr.addr + ") goto " + s.trueLabel + ";\n";
-  s.code = s.code + "goto " + s.next + ";\n";
+  s.code = init_expr.code + begin + ": ;\n" + test_expr.code;
   s.code = s.code + s.trueLabel + ": ;\n" + body_stmt.code;
   s.code = s.code + incr_expr.code + "goto " + begin + ";\n";
   s.code = s.code + next + ": ;\n";
@@ -821,11 +818,10 @@ string printWhileStmt(SgWhileStmt* while_stmt) {
 StatementNode translatedWhileStmt(SgWhileStmt* while_stmt, string next) {
   StatementNode s;
   BooleanNode b;
-  string loopHead = newLabel();
   s.next = next;
   string begin = newLabel();
   SgExprStatement* the_test = isSgExprStatement(while_stmt->get_condition());
-  b = translatedBooleanOp(the_test->get_expression(), loopHead, next);
+  b = translatedBooleanOp(the_test->get_expression(), newLabel(), next);
   SgStatement* the_body = while_stmt->get_body();
   StatementNode body_node = translatedStatement(the_body, begin);
 
@@ -882,7 +878,7 @@ StatementNode translatedIfStmt(SgIfStmt* stmt, string next) {
     _false = next;
   }
   BooleanNode cond = translatedBooleanOp(condition->get_expression(), _true, _false);
-  s.code = cond.code + translatedStatement(true_body, next).code;
+  s.code = cond.code + _true + ": ;\b" + translatedStatement(true_body, next).code;
   if (false_body) {
     s.code = s.code + "goto " + s.next + ";\n";
     s.code = s.code + _false + ": " + translatedStatement(false_body, next).code;
