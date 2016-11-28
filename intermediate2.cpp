@@ -804,7 +804,7 @@ StatementNode translatedForStmt(SgForStatement* for_stmt, string next) {
   s.code = s.code + "goto " + s.next + ";\n";
   s.code = s.code + s.trueLabel + ": ;\n" + body_stmt.code;
   s.code = s.code + incr_expr.code + "goto " + begin + ";\n";
-  // s.code = s.code + next + ": ;\n";
+  s.code = s.code + next + ": ;\n";
 
   return s;
 }
@@ -831,7 +831,7 @@ StatementNode translatedWhileStmt(SgWhileStmt* while_stmt, string next) {
 
   s.code = begin + ": ;\n" + b.code;
   s.code = s.code + b._true + ": " + body_node.code + "goto " + begin + ";\n";
-  // s.code = s.code + next + ": ;\n";
+  s.code = s.code + next + ": ;\n";
   return s;
 }
 
@@ -911,6 +911,7 @@ StatementNode translatedBasicBlock(SgBasicBlock* block, string next) {
   SgStatementPtrList::const_iterator iter;
   for (iter=stmt_list.begin(); iter != stmt_list.end(); iter++) {
     SgStatement* stmt = *iter;
+    string newNext = newLabel();
     StatementNode sn = translatedStatement(stmt, newNext);
     s.code = sn.code;
   }
