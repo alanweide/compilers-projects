@@ -453,7 +453,7 @@ ExpressionNode translatedBinaryOp(SgBinaryOp* expr) {
   return out;
 }
 
-BooleanNode translatedBooleanOp(SgBinaryOp* expr, string _true, string _false) {
+BooleanNode translatedBooleanOp(SgExpression* expr, string _true, string _false) {
   BooleanNode out;
   out._true = _true;
   out._false = _false;
