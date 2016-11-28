@@ -216,7 +216,6 @@ string printExpression(SgExpression* expr) {
 
 ExpressionNode translatedExpression(SgExpression* expr) {
   ExpressionNode output;
-  output.isBoolean = false;
 
     //   Relational ops:
     //   SgBinaryOp* bi_expr = isSgBinaryOp(expr);
@@ -456,6 +455,8 @@ ExpressionNode translatedBinaryOp(SgBinaryOp* expr) {
 
 BooleanNode translatedBooleanOp(SgBinaryOp* expr, string _true, string _false) {
   BooleanNode out;
+  out._true = _true;
+  out._false = _false;
   switch (expr->variantT()) {
     case V_SgAndOp:
       // Short-circuit eval
@@ -466,8 +467,6 @@ BooleanNode translatedBooleanOp(SgBinaryOp* expr, string _true, string _false) {
     default:
       ExpressionNode lhs = translatedExpression(expr->get_lhs_operand());
       ExpressionNode rhs = translatedExpression(expr->get_rhs_operand());
-      out.addr = newTemp(expr->get_type());
-      out.code = printType(expr->get_type()) + " " + out.addr + ";\n";
       out.code = out.code + lhs.code + rhs.code;
       out.code = out.code + "if (";
       out.code = out.code + lhs.addr + printOperatorForBinaryOp(expr) + rhs.addr;
@@ -825,7 +824,7 @@ StatementNode translatedWhileStmt(SgWhileStmt* while_stmt, string next) {
   s.next = next;
   string begin = newLabel();
   SgExprStatement* the_test = isSgExprStatement(while_stmt->get_condition());
-  b = translatedBooleanExpression(the_test->get_expression(), loopHead, next);
+  b = translatedBooleanOp(the_test->get_expression(), loopHead, next);
   SgStatement* the_body = while_stmt->get_body();
   StatementNode body_node = translatedStatement(the_body, begin);
 
@@ -873,19 +872,19 @@ StatementNode translatedIfStmt(SgIfStmt* stmt, string next) {
   s.next = next;
   string _true = newLabel();
   string _false;
+  SgExprStatement* condition = isSgExprStatement(stmt->get_conditional());
+  SgStatement* true_body = isSgStatement(stmt->get_true_body());
+  SgStatement* false_body = isSgStatement(stmt->get_false_body());
   if (false_body) {
     _false = newLabel();
   } else {
     _false = next;
   }
-  SgExprStatement* condition = isSgExprStatement(stmt->get_conditional());
-  SgStatement* true_body = isSgStatement(stmt->get_true_body());
-  SgStatement* false_body = isSgStatement(stmt->get_false_body());
-  BooleanNode cond = translatedBooleanOp(condition->get_expression());
-  s.code = cond.code + s.trueLabel + ": " + translatedStatement(true_body, next).code;
+  BooleanNode cond = translatedBooleanOp(condition->get_expression(), _true, _false);
+  s.code = cond.code + translatedStatement(true_body, next).code;
   if (false_body) {
     s.code = s.code + "goto " + s.next + ";\n";
-    s.code = s.code + s.falseLabel + ": " + translatedStatement(false_body, next).code;
+    s.code = s.code + _false + ": " + translatedStatement(false_body, next).code;
   } 
   // s.code = s.code + next + ": ;\n";
   return s;
