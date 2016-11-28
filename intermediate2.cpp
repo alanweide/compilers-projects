@@ -460,10 +460,14 @@ BooleanNode translatedBooleanOp(SgExpression* expr, string _true, string _false)
   SgBinaryOp* binOp = isSgBinaryOp(expr);
   switch (expr->variantT()) {
     case V_SgAndOp:
-      // Short-circuit eval
+      BooleanNode lhs = translatedBinaryOp(binOp->get_lhs_operand(), newLabel(), _false);
+      BooleanNode rhs = translatedBinaryOp(binOp->get_rhs_operand(), _true, _false);
+      out.code = out.code + lhs.code + lhs._true + ": ;\n" + rhs.code;
       break;
     case V_SgOrOp:
-      // short-circuit eval
+      BooleanNode lhs = translatedBinaryOp(binOp->get_lhs_operand(), _true, newLabel());
+      BooleanNode rhs = translatedBinaryOp(binOp->get_rhs_operand(), _true, _false);
+      out.code = out.code + lhs.code + lhs._false + ": ;\n" + rhs.code;
       break;
     default:
       ExpressionNode lhs = translatedExpression(binOp->get_lhs_operand());
@@ -878,10 +882,10 @@ StatementNode translatedIfStmt(SgIfStmt* stmt, string next) {
     _false = next;
   }
   BooleanNode cond = translatedBooleanOp(condition->get_expression(), _true, _false);
-  s.code = cond.code + _true + ": ;\b" + translatedStatement(true_body, next).code;
+  s.code = cond.code + _true + ": ;\n" + translatedStatement(true_body, next).code;
   if (false_body) {
     s.code = s.code + "goto " + s.next + ";\n";
-    s.code = s.code + _false + ": " + translatedStatement(false_body, next).code;
+    s.code = s.code + _false + ": ;\n" + translatedStatement(false_body, next).code;
   } 
   s.code = s.code + next + ": ;\n";
   return s;
