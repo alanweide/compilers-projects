@@ -22,12 +22,11 @@ struct StatementNode
 {
   string code;
   string next;
-  string trueLabel;
-  string falseLabel;
 };
 
 string newTemp();
 string newLabel();
+string label(string label);
 string printExpression(SgExpression* expr);
 ExpressionNode translatedExpression(SgExpression* expr);
 string printType(SgType* type);
@@ -70,6 +69,10 @@ string newLabel() {
   ostringstream output;
   output << "_L" << curLabel;
   return output.str();
+}
+
+string label(string label) {
+  return label + ": ;\n";
 }
 
 string printExpression(SgExpression* expr) {
@@ -462,13 +465,13 @@ BooleanNode translatedBooleanOp(SgExpression* expr, string _true, string _false)
     case V_SgAndOp: {
       BooleanNode lhs = translatedBooleanOp(binOp->get_lhs_operand(), newLabel(), _false);
       BooleanNode rhs = translatedBooleanOp(binOp->get_rhs_operand(), _true, _false);
-      out.code = out.code + lhs.code + lhs._true + ": ;\n" + rhs.code;
+      out.code = out.code + lhs.code + label(lhs._true) + rhs.code;
       break;
     }
     case V_SgOrOp: {
       BooleanNode lhs = translatedBooleanOp(binOp->get_lhs_operand(), _true, newLabel());
       BooleanNode rhs = translatedBooleanOp(binOp->get_rhs_operand(), _true, _false);
-      out.code = out.code + lhs.code + lhs._false + ": ;\n" + rhs.code;
+      out.code = out.code + lhs.code + label(lhs._false) + rhs.code;
       break;
     }
     default: {
@@ -805,10 +808,10 @@ StatementNode translatedForStmt(SgForStatement* for_stmt, string next) {
 
   StatementNode body_stmt = translatedStatement(the_body, begin);
 
-  s.code = init_expr.code + begin + ": ;\n" + test_expr.code;
-  s.code = s.code + s.trueLabel + ": ;\n" + body_stmt.code;
+  s.code = init_expr.code + label(begin) + test_expr.code;
+  s.code = s.code + label(test_expr._true) + body_stmt.code;
   s.code = s.code + incr_expr.code + "goto " + begin + ";\n";
-  s.code = s.code + next + ": ;\n";
+  s.code = s.code + label(next);
 
   return s;
 }
@@ -832,9 +835,9 @@ StatementNode translatedWhileStmt(SgWhileStmt* while_stmt, string next) {
   SgStatement* the_body = while_stmt->get_body();
   StatementNode body_node = translatedStatement(the_body, begin);
 
-  s.code = begin + ": ;\n" + b.code;
-  s.code = s.code + b._true + ": ;\n" + body_node.code + "goto " + begin + ";\n";
-  s.code = s.code + next + ": ;\n";
+  s.code = label(begin) + b.code;
+  s.code = s.code + label(b._true) + body_node.code + "goto " + begin + ";\n";
+  s.code = s.code + label(next);
   return s;
 }
 
@@ -849,11 +852,15 @@ string printDoWhileStmt(SgDoWhileStmt* dow_stmt) {
 
 StatementNode translatedDoWhileStmt(SgDoWhileStmt* dow_stmt, string next) {
   StatementNode s;
+  BooleanNode b;
   s.next = next;
-  SgExprStatement* the_test = isSgExprStatement(dow_stmt->get_condition());
-  SgStatement* the_body = dow_stmt->get_body();
-  s.code = s.code + "do\n" + printStatement(the_body);
-  s.code = s.code + "while (" + printExpression(the_test->get_expression()) + ");\n";
+  string begin = newLabel();
+  SgExprStatement* the_test = isSgExprStatement(while_stmt->get_condition());
+  b = translatedBooleanOp(the_test->get_expression(), begin, next);
+  SgStatement* the_body = while_stmt->get_body();
+  StatementNode body_node = translatedStatement(the_body, begin);
+
+  s.code = label(begin) + body_node.code + b.code + label(next);
   return s;
 }
 
