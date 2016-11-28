@@ -22,6 +22,8 @@ struct StatementNode
 {
   string code;
   string next;
+  string trueLabel;
+  string falseLabel;
 };
 
 string newTemp();
