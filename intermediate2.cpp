@@ -466,11 +466,11 @@ BooleanNode translatedBooleanOp(SgExpression* expr, string _true, string _false)
       // short-circuit eval
       break;
     default:
-      ExpressionNode lhs = translatedExpression(expr->get_lhs_operand());
-      ExpressionNode rhs = translatedExpression(expr->get_rhs_operand());
+      ExpressionNode lhs = translatedExpression(binOp->get_lhs_operand());
+      ExpressionNode rhs = translatedExpression(binOp->get_rhs_operand());
       out.code = out.code + lhs.code + rhs.code;
       out.code = out.code + "if (";
-      out.code = out.code + lhs.addr + printOperatorForBinaryOp(expr) + rhs.addr;
+      out.code = out.code + lhs.addr + printOperatorForBinaryOp(binOp) + rhs.addr;
       out.code = out.code + ") goto " + _true + ";\n" + "goto " + _false + ";\n";
       break;
   }
