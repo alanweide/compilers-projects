@@ -1,12 +1,8 @@
 int main() {
 	int x;
 	int y;
-	if (y < x || x < y) {
-		x--;
-	}
-
-	if (y >= x && x >= y) {
-		y--;
+	for (x = 0; x < y; x++) {
+		y = 1;
 	}
 	return 0;
 }
