@@ -857,7 +857,7 @@ StatementNode translatedDoWhileStmt(SgDoWhileStmt* dow_stmt, string next) {
   string begin = newLabel();
   SgExprStatement* the_test = isSgExprStatement(dow_stmt->get_condition());
   b = translatedBooleanOp(the_test->get_expression(), begin, next);
-  SgStatement* the_body = sow_stmt->get_body();
+  SgStatement* the_body = dow_stmt->get_body();
   StatementNode body_node = translatedStatement(the_body, begin);
 
   s.code = label(begin) + body_node.code + b.code + label(next);
